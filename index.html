@@ -1,1 +1,91 @@
-Hello World
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Page Title</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="Styles/index.css">
+
+
+</head>
+<body>
+
+
+<div class="header">
+  <h1>Welcome to Banka</h1>
+  <p>Experience <b>the nostalgia of the 17th century</b> financial services world once again</p>
+</div>
+
+ 
+<div class="navbar">
+  <a href="#" class="active">Home</a>
+  <a href="#">Our Services</a>
+  <a href="#">About Us</a>
+</div>
+
+<!__Side bar content __>
+<div class="row">
+  <div class="side">
+    <h2 class = "front">Get More For Your Savings</h2>
+    <h5 class = "front">Choose from our personal savings accounts</h5> 
+    <p><h5 class ="front">Join the ethical banking movement</h5></p>
+    <p><a href = #sign_up><button class = "front">Get Started</button></a></p>
+
+  </div>
+  <div class="side">
+    <div>
+        <div class = "form">
+        <fieldset>
+        <legend> Access our banking Platform </legend>
+
+
+        <!__Registration form __>
+            <form class="register-form" name = "sign_up" id = "sign_up">
+                <input type="text" name = "name" placeholder = "Name" required="required">
+                <input type = "text" name = "email" placeholder="Email" required="required">
+                <input type = "password" name = "psword" id = "psword" placeholder="Password" required="required">
+                <input type = "password" name = "confirm_psword" id = "confirm_psword" placeholder="Confirm Password" required="required">
+                <input type = "text" name = "state" placeholder="State">
+                <div id = "signup_msg"></div>
+                <button> Sign Up </button>
+                
+                <p class = "message"> Already Registered? <a href = "#">Login</a></p>
+            </form>
+        </fieldset>
+        </div>
+    </div>
+</div>
+
+<!__Footer and address__>
+<div class="mainx footer">
+  <h2>Your world of Financial Meriment</h2>
+  <h4>Contact us</h4>
+      <address>
+         52nd Street<br>
+         Ikeja,<br>
+         LG 10019<br>
+         Lagos
+      </address>
+</div>
+
+
+<!__ HTML5 validate password __>
+<script type="text/javascript">
+  var password = document.getElementById("psword");
+  var confirm_password = document.getElementById("confirm_psword");
+
+function validatePassword(){
+  if(password.value != confirm_password.value) {
+    confirm_password.setCustomValidity("Passwords Don't Match");
+  } else {
+    confirm_password.setCustomValidity('');
+  }
+}
+
+password.onchange = validatePassword;
+confirm_password.onkeyup = validatePassword;
+</script>
+
+
+</body>
+</html>
