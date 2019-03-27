@@ -21,8 +21,8 @@
   <a href="#" class="active">Home</a>
   <a href="#">Our Services</a>
   <a href="#">About Us</a>
+  <a href="#login" class="right" onclick = loginFocus()>Login</a>
 </div>
-
 
 <!__Side bar content __>
 <div class="row">
@@ -34,23 +34,33 @@
 
   </div>
   <div class="side">
-    <div>
+    <div class = "login-page">
         <div class = "form">
         <fieldset>
         <legend> Access our banking Platform </legend>
 
 
         <!__Registration form __>
-            <form class="register-form" name = "sign_up" id = "sign_up">
+            <form class="register-form hidden" name = "sign_up" id = "sign_up">
                 <input type="text" name = "name" placeholder = "Name" required="required">
                 <input type = "text" name = "email" placeholder="Email" required="required">
                 <input type = "password" name = "psword" id = "psword" placeholder="Password" required="required">
                 <input type = "password" name = "confirm_psword" id = "confirm_psword" placeholder="Confirm Password" required="required">
                 <input type = "text" name = "state" placeholder="State">
                 <div id = "signup_msg"></div>
-                <button> Sign Up </button>
+                <button onclick="check(this.form)"> Sign Up </button>
                 
                 <p class = "message"> Already Registered? <a href = "#">Login</a></p>
+            </form>
+
+
+            <!__ Login Form __>
+            <form class = "login-form" name = "login" id = "login">
+                <input type="text" name = "email" placeholder="Email" required = "required"/>
+                <input type="password" name = "psword" placeholder="Password" required = "required"/>
+                <button onclick="check(this.form)">Log in </button>
+                <div id = "login_msg"></div>
+                <p class = "message"> Not Registered? <a href="#"> Sign Up </a></p>
             </form>
         </fieldset>
         </div>
@@ -68,6 +78,159 @@
          Lagos
       </address>
 </div>
+
+
+
+
+<!__Login Focus called on line 24 only__>
+<script type="text/javascript">
+  function loginFocus(){
+    let login_toggle = document.querySelector(".login-form");
+    let signup_toggle = document.querySelector(".register-form");
+    if(login_toggle.classList.contains("hidden")){
+      login_toggle.classList.toggle("hidden");
+      signup_toggle.classList.toggle("hidden");
+    }
+  }
+</script>
+
+<!__Toggle Login/Signup when user click Login/Signup a tag__>
+<script type="text/javascript">
+    const toggleLink = document.querySelectorAll(".message a");
+
+    for (var i = 0; i < toggleLink.length; i++){
+        toggleLink[i].addEventListener('click', toggles, false);
+    }
+
+    function toggles(){
+        let signup_toggle = document.querySelector(".register-form");
+        let login_toggle = document.querySelector(".login-form");
+
+        if(this.innerHTML === "Sign Up" || "Login"){
+            login_toggle.classList.toggle("hidden");
+            signup_toggle.classList.toggle("hidden");
+        }
+    }
+    
+</script>
+
+<!__ Check Sign up form __>
+<script type="text/javascript">
+  //Response to form
+  function check(form){
+
+
+    var resp_msg = "";
+    
+    /*If Form is sign up form, check user details */
+    if(form.name == "sign_up"){
+      var response = document.querySelector("#signup_msg");
+      response.innerHTML = "";
+      function noError(){
+        re = /^[a-zA-Z]*$/;
+        if(!re.test(form.elements["email"].value)) {
+          resp_msg+= "Error: Name must contain only letters, no numbers and underscores! + <br>";
+          return false;
+        }
+        if(form.elements["psword"] !== form.elements["confirm_psword"]) {
+          resp_msg+= "Error: Password does not match! + <br>";
+          return false;
+        }
+
+        if(fform.elements["psword"].value.length < 5) {
+            resp_msg+= "Error: Password must contain at least five characters! + <br>";
+            return false;
+          }
+      
+        if(!response.classList.contains("success_msg")){
+          response.classList.add("success_msg");
+        }
+        resp_msg+= "Registration successful. + <a href = #login>Login</a> + to continue"
+        return true;
+      }
+      if(noError() == false){
+        if(response.classList.contains("success_msg")){
+          response.classList.remove("success_msg");
+        }
+        if(response.classList.contains("error_msg") == false){
+          response.classList.add("error_msg");
+        }
+        response.innerHTML+= resp_msg;
+      }
+      else if(noError() == true){
+        if(response.classList.contains("error_msg")){
+          response.classList.remove("error_msg");
+        }
+        if(response.classList.contains("success_msg") == false){
+          response.classList.add("success_msg");
+        }
+        response.innerHTML+= resp_msg;
+      }
+    }
+    /*If login form, authenticate user */
+    else if(form.name == "login"){
+      var response = document.querySelector("#login_msg");
+      response.innerHTML = "";
+
+        /*check email & password*/
+       /*check whether the entered userid and password are matching*/
+      var em = form.elements["email"].value;
+      var pw = form.elements["psword"].value;
+
+
+      if((em == "user" || "cashier" || "admin") && pw == "password"){
+        if(response.classList.contains("error_msg")){
+          response.classList.remove("error_msg");
+        }
+        if(!response.classList.contains("success_msg")){
+          response.classList.add("success_msg");
+        }
+        resp_msg+= "Login successful. Preparing your dashboard"
+          if(userType(em) == "user"){
+            setTimeout(window.open('html/user_dashboard.html'), 100000)/*open the user dashboard while email & password matches*/
+          }
+          if(userType(em) == "staff"){
+            if(userRole(em) == "cashier"){
+            setTimeout(window.open('html/cashier_dashboard.html'), 100000)/*open the target page while email & password matches*/}
+            if(userRole(em) == "admin"){
+            setTimeout(window.open('html/admin_dashboard.html'), 100000)/*open the target page while email & password matches*/}
+          }
+        }
+       else{
+         if(response.classList.contains("sucess_msg")){
+            response.classList.remove("sucess_msg");
+          }
+          if(!response.classList.contains("error_msg")){
+            response.classList.add("error_msg");
+        }
+        resp_msg+= "Error Password or Email"/*display error message*/
+       }
+       response.innerHTML+= resp_msg;
+    }    
+    resp_msg = "";
+}
+
+</script>
+
+<!
+
+<!__ Check user type __>
+<script type="text/javascript">
+  function userType(user1){
+    if(user1 == "user"){ return "user";}
+    if(user1 == "cashier" || "admin"){ return "staff";}
+  }
+</script>
+
+<!__ Check user role __>
+<script type="text/javascript">
+  function userRole(user1){
+    if(user1 == "user"){ return null;}
+    if(user1 == "cashier"){ return "cashier";}
+    if(user1 == "admin"){ return "admin";}
+  }
+</script>
+
 
 
 <!__ HTML5 validate password __>
