@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Banka | The Old School Bank</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../Styles/index.css">
+<link rel="stylesheet" href="../Styles/profile.css">
+</head>
+<body>
+
+<div class="user-panel clearfix">
+  <div class="header">
+    <h1>Banka</h1>
+    <p> Welcome back, Rasheed</p>
+  </div>
+
+
+  <div class="navbar">
+    <a href="#" class="active">Home</a>
+    <a href="#">Our Services</a>
+    <a href="#">About Us</a>
+    <a href="#login" class="right" onclick = loginFocus()>Logout</a>
+  </div>
+
+  <!--Side bar navigation-->
+  <div class="slidebar">
+    <ul>
+      <li><a href="#dashboard" name = "acbalance" id="targeted" class = "contentToggle">Account dashboard</a></li>
+      <li><a href="#dashboard" name = "baccounts" class = "contentToggle">Bank Accounts</a></li>
+    </ul>
+  </div>
+
+    <div class="main">
+      <div class="mainContent">
+          <h2 class="header">Dashboard</h2>
+                <div id = "dashboard">
+                  <div id = "acbalance" class = "contenty">
+                    <!-- Account balance -->
+                      <h4>Account Dashboard</h4><hr>
+
+
+                      <!-- Select from user's Bank List -->
+                      <h2>
+                        <select id = "accselect">
+                          <option value="selectbank">Select an Account</option>
+                          <option value="bank1">Acc101 - Donald Shegs</option>
+                          <option value="bank2">Acc102 - Mike Lapo</option>
+                          <option value="bank3">Acc 103 - Khaleesi Mustafa</option>
+                        </select>
+                      
+                      <span class = "nav">
+                        <input type="text" placeholder="Search accounts..">   
+                      </span>
+
+                    </h2>
+
+                      <!--List all users banks -->
+                      <ul class="content">  
+                          <li>
+                            <table>
+                              <tr>
+                                <th>Account Number</th>
+                                <th>User</th>
+                                <th>Balance</th>
+                                <th>Bank</th>
+                                <th>Action</th>
+                                <th></th>
+                              </tr>
+                              <tr>
+                                 <td>Acc101</td>
+                                 <td>Donald Shegs</td>
+                                 <td>N3,000</td>
+                                 <td>Bank of Lagos</td>
+                                 <td><select class = "myselect">
+                                      <option value="credit">Credit</option>
+                                      <option value="debit">Debit</option>
+                                      <option value="delete">Delete Account</option>
+                                    </select>
+                                  </td>
+                                 <td><a href = "#thistory">View transaction history</a> </td>
+                              </tr>
+                              <tr>
+                                 <td>Acc102</td>
+                                 <td>Mike Lapo</td>
+                                 <td>N4,500</td>
+                                 <td>Bank of Andela</td>
+                                 <td><select class = "myselect">
+                                      <option value="credit">Credit</option>
+                                      <option value="debit">Debit</option>
+                                      <option value="delete">Delete Account</option>
+                                    </select>
+                                 <td><a href = "#thistory">View transaction history</a> </td>
+                              </tr>
+                              <tr>
+                                 <td>Acc103</td>
+                                 <td>Khaleesi Mustafa</td>
+                                 <td>N12,500</td>
+                                 <td>Bank of Andela</td>
+                                 <td><select class = "myselect" onChange ="check(this);">
+                                      <option value="credit">Credit</option>
+                                      <option value="debit">Debit</option>
+                                      <option value="delete">Delete Account</option>
+                                    </select>
+                                 <td><a href = "#thistory">View transaction history</a> </td>
+                              </tr>
+                            </table>
+                            </li>
+                      </ul>
+                  </div>
+                  
+                  <div>
+                  </div>
+
+                  <!-- Transaction history -->      
+                  <div id="detail" class = "contenty">
+                    <div id = "content">
+                          <h4>Result</h4></div><hr>
+
+                        <div class = "detailview"></div>
+                    </div>
+                  </div>
+
+                  
+                                
+                </div><!-- End dashboard header -->
+                
+        </div> <!-- End maincontent -->
+
+    </div>
+
+
+
+</div>
+
+<!-- <script type="text/javascript">
+  select = document.querySelector("select")
+  function check(elem){
+
+  }
+</script>
+-->
+
+
+
+<script type="text/javascript">
+      const toggleLink = document.querySelectorAll(".contenty");
+      const toggleMain = document.querySelectorAll(".contentToggle");
+      var toggleMains = [];
+
+    for (var i = 0; i < toggleMain.length; i++){
+        toggleMains.push(toggleMain[i]);
+        toggleMain[i].addEventListener('click', toggleMenu.bind(null, toggleMain[i]), false);
+    }
+
+    //console.log(toggleMains);
+
+    function toggleMenu(toggleMainy){
+      //toggleMains.map(x => {return x.classList.toggle("hidden")});
+      for(var i = 0; i < toggleMains.length; i++){
+        if(!toggleLink[i].classList.contains("hide")){
+          if(toggleLink[i].id != toggleMainy.name){
+            toggleLink[i].classList.add("hide");
+          }
+        }
+        if(toggleLink[i].id == toggleMainy.name){
+          if(toggleLink[i].classList.contains("hide")){
+            toggleLink[i].classList.remove("hide");
+          }
+        }
+      }
+    }
+</script>
+
+
+</body>
+</html>
