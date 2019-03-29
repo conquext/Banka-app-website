@@ -1,0 +1,130 @@
+body {
+	background-color: rgb(220,220,220);
+	padding: 0;
+	margin: 0;
+	font-size: 16px;
+	font-family: sans-serif;
+}
+
+
+.user-panel {
+	width: auto;
+	margin: 0px auto;
+}
+/*slidebar*/
+.slidebar {
+	width: 20%;
+	min-height: 690px;
+	float: left;
+	border-right: 1px solid rgb(235,235,235);
+	background-color: rgb(247,247,247);
+}
+
+.slidebar ul {
+	padding: 0;
+	margin:0;
+}
+.slidebar li {
+	list-style-type: none;
+	margin: 0;
+	position: relative;
+}
+
+
+.slidebar ul a {
+	color: rgb(140,140,140);
+	text-decoration: none;
+	font:16px/40px helvetica,verdana,sans-serif;
+	box-sizing:border-box;
+	border-bottom: 1px solid rgb(235,235,235);
+	display: block;
+	box-shadow:inset 0 1px 0 rgb(255,255,255);
+	text-indent: 20px;
+	text-transform: capitalize;
+}
+.slidebar li:hover a {
+	background-color: rgb(255,255,255);
+	box-shadow: 1px 0 0 rgb(255,255,255),inset 5px 0 0 -1px rgb(234,83,63);
+}
+/*main*/
+.main {
+	float: left;
+	width: 79%;
+	height: 690px;
+	background-color: rgb(255,255,255);
+	position: relative;
+	font-family: helvetica,verdana,sans-serif;
+}
+.main .topbar {
+	border-bottom: 1px solid rgb(235,235,235);
+	margin: 10;
+	padding: 10;
+}
+
+/*mainContent*/
+.mainContent input {
+	line-height: 0.5;
+	font-size: 8px;
+	margin: 1.3em 3 1em;
+	margin-left: 15px;
+}
+
+.mainContent h4 {
+	line-height: 1;
+	font-size: 18px;
+	margin: 1.3em 0 1em;
+	margin-left: 17px;
+}
+
+.mainContent>div {
+	border: 1px;
+	position: relative;
+	-webkit-transition:opacity 200ms linear;
+	-moz-transition:opacity 200ms linear;
+	-ms-transition:opacity 200ms linear;
+	transition:opacity 200ms linear;
+}
+
+.mainContent>div:target {
+	opacity: 1;
+}
+.mainContent h2 {
+	margin:1em 30px;
+	font-size: 20px;
+}
+
+.mainContent h2.header{
+	width: auto;
+}
+
+.side{
+	display: block;
+	z-index: 1;
+	float: left;	
+	max-height: 260px;
+}
+
+.hide {
+	display: none;
+}
+
+
+#dashboard {
+	border: 1px solid rgb(235,235,235);
+	padding: 10px;
+	margin-left: 30px;
+	float: left;
+	border-radius: 5px;
+	min-width: 345px;
+	min-height: 262px;
+	display: inline-block;
+	overflow: auto;
+	position: relative;
+}
+
+
+td a{
+	font-size: 10px;
+	opacity: 1;
+	text-align: left;
+}
