@@ -187,13 +187,13 @@
         }
         resp_msg+= "Login successful. Preparing your dashboard"
           if(userType(em) == "user"){
-            setTimeout(window.open('html/user_dashboard.html', '_self'), 200000)/*open the user dashboard while email & password matches*/
+            setTimeout(window.open('html/user_dashboard.html'), 150000)/*open the user dashboard while email & password matches*/
           }
           if(userType(em) == "staff"){
             if(userRole(em) == "cashier"){
-            setTimeout(window.open('html/cashier_dashboard.html', '_self'), 200000)/*open the target page while email & password matches*/}
+            setTimeout(window.open('html/cashier_dashboard.html'), 150000)/*open the target page while email & password matches*/}
             if(userRole(em) == "admin"){
-            setTimeout(window.open('html/admin_dashboard.html', '_self'), 200000)/*open the target page while email & password matches*/}
+            setTimeout(window.open('html/admin_dashboard.html'), 150000)/*open the target page while email & password matches*/}
           }
         }
        else{
