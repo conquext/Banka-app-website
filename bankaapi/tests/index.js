@@ -516,7 +516,62 @@ describe('POST /api/v1/accounts', () => {
         done();
       });
   });
-    it('should check if balance is sufficient for debit transaction', (done) => {
+  it('should  allow admin user to view a specific account', (done) => {
+    chai.request(app)
+      .post(`{transactionURL}/id`)
+      .send({
+        data: {type: 'admin'}
+      })
+      .end((err, res) => {
+        expect(res).to.have.status(200);
+        expect(res.body.success).to.be.equal('success');
+        expect(res.body).to.have.key('accountNumber', 'balance', 'oldbalance');        
+        done();
+      });
+  });
+  it('should  allow client user to view a specific account', (done) => {
+    chai.request(app)
+      .post(`{transactionURL}/id`)
+      .send({
+        data: {type: 'cashier'}
+      })
+      .end((err, res) => {
+        expect(res).to.have.status(200);
+        expect(res.body.success).to.be.equal('success');
+        expect(res.body.accountFound).to.have.key('accountNumber', 'balance', 'oldbalance');        
+        done();
+      });
+  });
+  it('should  allow client user to view a specific account', (done) => {
+    chai.request(app)
+      .post(`{transactionURL}/id`)
+      .send({
+        data: {type: 'user'}
+      })
+      .end((err, res) => {
+        expect(res).to.have.status(403);
+        expect(res.body.success).to.be.equal('false');
+        expect(res.body.accountFound).to.have.key('Unathorized');        
+        done();
+      });
+  });
+  it('should  allow cashier user to view a specific account', (done) => {
+    chai.request(app)
+      .post(`{transactionURL}/id`)
+      .send({
+        data: {type: 'cashier'}
+      })
+      .end((err, res) => {
+        expect(res).to.have.status(200);
+        expect(res.body.success).to.be.equal('success');
+        expect(res.body.transactions).to.have.key('id', 'oldBalance', 'newBalance', amount);        
+        done();
+      });
+  });
+  
+
+  
+    it('should return fail transaction for insufficient balance in debit transaction', (done) => {
       chai.request(app)
         .post(`{transactionURL}`)
         .send({
