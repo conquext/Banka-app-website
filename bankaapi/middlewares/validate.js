@@ -16,9 +16,6 @@ class validate {
 		req.checkBody('firstName').isLength({ min: 1 }).withMessage('Field cannot be empty');
     	req.checkBody('email').isEmail().withMessage('Email is invalid');
 
-		var errors = req.validationErrors();
-
-
 		const errors = req.validationErrors();
 		if (errors) {
 			const err = auth.validationError(errors);
@@ -35,23 +32,13 @@ class validate {
 			});
 		}
 		req.checBody('name').isAlpha().withMessage('You should enter only alphabets')
-		req.checkBody('name').isLength({ min: 1 }).withMessage('Please enter your name');
-			.isLength({min: 1})
-			.withMessage('Name is required')
-			.isLength({min: 3})
-			.withMessage('Name should contain more than 3 characters')
-		req.checkBody('password')
-			.isAlphanumberic()
-			.withMessage('Password should be alphanumeric')
-			.isLength({
-				min: 1
-			})
-			.withMessage('Should be atleast 6 characters')
-            .exists()
-            .withMessage('Field cannot be empty'),
-		var errors = req.validationErrors();
-
-
+		.exists().withMessage('Please enter your name');
+		req.checkBody('name').isLength({min: 3}).withMessage('Name should contain more than 2 characters');
+		req.checkBody('email').isEmail().withMessage('Email is invalid');
+		req.checkBody('password').isAlphanumberic().withMessage('Password should be alphanumeric')
+		.isLength({ min: 6 }).withMessage('Should be atleast 6 characters')
+        .exists().withMessage('Password is required');
+		
 		const errors = req.validationErrors();
 		if (errors) {
 			const err = auth.validationError(errors);

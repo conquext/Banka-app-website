@@ -61,6 +61,23 @@ describe('POST /api/v1/auth/signup', () => {
         done();
       });
   });
+  describe('POST /api/v1/auth/signup', () => {
+    it('should not register existing user', (done) => {
+      chai.request(app)
+        .post(`${authSignupURL}`)
+        .send({
+          name: 'Name1',
+          email = 'email1@email.com',
+          password = 'password1',
+          confirm_password: 'password1'
+        })
+        .end((err, res) => {
+          expect (res).to.have.status(409);
+          expect(res.body.success).to.be.equal('false');
+          expect(res.body.error).to.be.equal('User already exists');
+          done();
+        });
+    });
   it('should not register user with an empty name', (done) => {
     chai.request(app)
       .post(`${authSignupURL}`)
@@ -73,7 +90,7 @@ describe('POST /api/v1/auth/signup', () => {
       .end((err, res) => {
         expect (res).to.have.status(422);
         expect(res.body.success).to.be.equal('false');
-        expect(res.body.error).to.be.equal('Please enter your email');
+        expect(res.body.error).to.be.equal('Please enter your name');
         done();
       });
   });
@@ -89,7 +106,7 @@ describe('POST /api/v1/auth/signup', () => {
       .end((err, res) => {
         expect (res).to.have.status(422);
         expect(res.body.success).to.be.equal('false');
-        expect(res.body.error).to.be.equal('Name should contain more than 3 characters');
+        expect(res.body.error).to.be.equal('Name should contain more than 2 characters');
         done();
       });
   });
@@ -105,7 +122,7 @@ describe('POST /api/v1/auth/signup', () => {
       .end((err, res) => {
         expect (res).to.have.status(422);
         expect(res.body.success).to.be.equal('false');
-        expect(res.body.error).to.be.equal('Please enter your email');
+        expect(res.body.error).to.be.equal('Password is required');
         done();
       });
   });
@@ -122,6 +139,22 @@ describe('POST /api/v1/auth/signup', () => {
         expect (res).to.have.status(422);
         expect(res.body.success).to.be.equal('false');
         expect(res.body.error).to.be.equal('Passwords must match');
+        done();
+      });
+  });
+  it('should use valid email', (done) => {
+    chai.request(app)
+      .post(`${authSignupURL}`)
+      .send({
+        name: 'Swall',
+        email: 'swall.gmail.com',
+        password: 'password1',
+        confirm_password: 'password2'
+      })
+      .end((err, res) => {
+        expect (res).to.have.status(422);
+        expect(res.body.success).to.be.equal('false');
+        expect(res.body.error).to.be.equal('Email is invalid');
         done();
       });
   });
@@ -187,4 +220,7 @@ describe('POST /api/v1/auth/signup', () => {
         done();
       });
   });
+});
+
+
 });
