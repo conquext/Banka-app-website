@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "app.js",
   "scripts": {
-    "start": "node_modules/.bin/nodemon app.js --exec babel-node --",
+    "start": "nodemon app.js --exec babel-node app.js",
     "dev-start": "nodemon --exec babel-node app.js",
     "start:server": "babel-watch app.js",
     "test": "mocha",
@@ -16,11 +16,21 @@
   "license": "ISC",
   "description": "a minimalist banking app",
   "dependencies": {
+    "@types/express": "^4.16.1",
     "chai-http": "^4.2.1",
+    "cordova": "^9.0.0",
     "express": "^4.16.4",
     "express-validator": "^5.3.1"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/conquext/conquext.github.io.git"
+  },
+  "bugs": {
+    "url": "https://github.com/conquext/conquext.github.io/issues"
+  },
   "devDependencies": {
+    "@types/chai-http": "^4.2.0",
     "chai": "^4.2.1",
     "coveralls": "^3.0.3",
     "eslint": "^5.3.0",
