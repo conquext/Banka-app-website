@@ -6,18 +6,15 @@ import { auth } from '../middlewares';
 
 
 class validate {
-	validationError = (errors) => {
+	static validationError(errors) {
 		const errorCode = errors.map(error => error.msg);
 		return err;
-	},
+	};
 
 
 	static loginCheck(req, res, next){
 		req.checkBody('firstName').isLength({ min: 1 }).withMessage('Field cannot be empty');
     	req.checkBody('email').isEmail().withMessage('Email is invalid');
-
-		var errors = req.validationErrors();
-
 
 		const errors = req.validationErrors();
 		if (errors) {
@@ -35,23 +32,13 @@ class validate {
 			});
 		}
 		req.checBody('name').isAlpha().withMessage('You should enter only alphabets')
-		req.checkBody('name').isLength({ min: 1 }).withMessage('Please enter your name');
-			.isLength({min: 1})
-			.withMessage('Name is required')
-			.isLength({min: 3})
-			.withMessage('Name should contain more than 3 characters')
-		req.checkBody('password')
-			.isAlphanumberic()
-			.withMessage('Password should be alphanumeric')
-			.isLength({
-				min: 1
-			})
-			.withMessage('Should be atleast 6 characters')
-            .exists()
-            .withMessage('Field cannot be empty'),
-		var errors = req.validationErrors();
-
-
+		.exists().withMessage('Please enter your name');
+		req.checkBody('name').isLength({min: 3}).withMessage('Name should contain more than 2 characters');
+		req.checkBody('email').isEmail().withMessage('Email is invalid');
+		req.checkBody('password').isAlphanumberic().withMessage('Password should be alphanumeric')
+		.isLength({ min: 6 }).withMessage('Should be atleast 6 characters')
+        .exists().withMessage('Password is required');
+		
 		const errors = req.validationErrors();
 		if (errors) {
 			const err = auth.validationError(errors);
@@ -69,22 +56,22 @@ class validate {
 		}
         req.checkBody('type').isIn(['savings', 'current']).withMessage('Choose a valid account type')
             .exists()
-			.withMessage('Specify account type'),
+			.withMessage('Specify account type');
 		req.checkBody('userId')
 			.exists()
-			.withMessage('specify account owner Id')
+			.withMessage('specify account owner Id');
 		req.checkBody('bank')
 		.exists()
-		.withMessage('Specify a bank')
-				
+		.withMessage('Specify a bank');
 
-				.withMessage('Specify account type'),
-            body('openingBalance').isDecimal().withMessage('You should enter only decimal')
-                .exists()
-                .withMessage('Field cannot be empty'),
-        ];
+		const errors = req.validationErrors();
+		if (errors) {
+			const err = auth.validationError(errors);
+			return auth.errorResponse(res, 422, err);
+		}
 		next();
 	}
+
 	static transactionCheck (req, res, next) {
         const accNo = req.body.accountNumber;
         let accountFound = '';

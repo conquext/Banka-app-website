@@ -24,10 +24,6 @@ class accountController {
         return res.status(201).json({
           success: 'true',
           message: 'Account is created successfully',
-          id: userId,
-          type: type,
-          accountNumber: accountNumber,
-          bank: bank,
           data: newAccount
         });
       }
@@ -71,7 +67,7 @@ class accountController {
                 result = accounts[i];
                 return res.status(201).json({
                     success: 'true',
-                    message: 'Accounts retrieved successfully ',
+                    message: 'Accounts retrieved successfully',
                     Account: result
                   });
             }
@@ -143,7 +139,7 @@ class accountController {
         accounts.splice(accountIndex, 1); 
         return res.status(200).json({
             success: 'true',
-            message: 'Account deleted successfuly',
+            message: 'Account deleted successfully',
         });
       }
       catch (error) {

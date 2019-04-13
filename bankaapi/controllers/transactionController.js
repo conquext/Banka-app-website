@@ -116,7 +116,3 @@ class transactionController {
         }
     }
 }
-
-    
-const transactionController = new transactionController();
-export default transactionController;

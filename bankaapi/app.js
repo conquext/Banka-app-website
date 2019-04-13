@@ -10,6 +10,7 @@ const port = process.env.PORT || 4000;
 app.use(bodyParser.json({ type: 'application/json' }));
 app.use(bodyParser.urlencoded({ extended: true }));
 
+app.use(expressValidator());
 
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/users', userRouter);

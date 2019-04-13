@@ -61,6 +61,24 @@ describe('POST /api/v1/auth/signup', () => {
         done();
       });
   });
+});
+  describe('POST /api/v1/auth/signup', () => {
+    it('should not register existing user', (done) => {
+      chai.request(app)
+        .post(`${authSignupURL}`)
+        .send({
+          name: 'Name1',
+          email = 'email1@email.com',
+          password = 'password1',
+          confirm_password: 'password1'
+        })
+        .end((err, res) => {
+          expect (res).to.have.status(409);
+          expect(res.body.success).to.be.equal('false');
+          expect(res.body.error).to.be.equal('User already exists');
+          done();
+        });
+    });
   it('should not register user with an empty name', (done) => {
     chai.request(app)
       .post(`${authSignupURL}`)
@@ -73,7 +91,7 @@ describe('POST /api/v1/auth/signup', () => {
       .end((err, res) => {
         expect (res).to.have.status(422);
         expect(res.body.success).to.be.equal('false');
-        expect(res.body.error).to.be.equal('Please enter your email');
+        expect(res.body.error).to.be.equal('Please enter your name');
         done();
       });
   });
@@ -89,7 +107,7 @@ describe('POST /api/v1/auth/signup', () => {
       .end((err, res) => {
         expect (res).to.have.status(422);
         expect(res.body.success).to.be.equal('false');
-        expect(res.body.error).to.be.equal('Name should contain more than 3 characters');
+        expect(res.body.error).to.be.equal('Name should contain more than 2 characters');
         done();
       });
   });
@@ -105,7 +123,7 @@ describe('POST /api/v1/auth/signup', () => {
       .end((err, res) => {
         expect (res).to.have.status(422);
         expect(res.body.success).to.be.equal('false');
-        expect(res.body.error).to.be.equal('Please enter your email');
+        expect(res.body.error).to.be.equal('Password is required');
         done();
       });
   });
@@ -122,6 +140,22 @@ describe('POST /api/v1/auth/signup', () => {
         expect (res).to.have.status(422);
         expect(res.body.success).to.be.equal('false');
         expect(res.body.error).to.be.equal('Passwords must match');
+        done();
+      });
+  });
+  it('should use valid email', (done) => {
+    chai.request(app)
+      .post(`${authSignupURL}`)
+      .send({
+        name: 'Swall',
+        email: 'swall.gmail.com',
+        password: 'password1',
+        confirm_password: 'password2'
+      })
+      .end((err, res) => {
+        expect (res).to.have.status(422);
+        expect(res.body.success).to.be.equal('false');
+        expect(res.body.error).to.be.equal('Email is invalid');
         done();
       });
   });
@@ -184,6 +218,371 @@ describe('POST /api/v1/auth/signup', () => {
         expect (res).to.have.status(200);
         expect(res.body.success).to.be.equal('true');
         expect(res.body.data).to.have.key('id', 'email', 'type', 'token');
+        done();
+      });
+  });
+});
+
+// Test Account Controller
+describe('POST /api/v1/transactions', () => {
+  it('should create a new transaction', (done) => {
+    chai.request(app)
+      .post(`$transactionURL`)
+      .send({
+        userId: 2,
+        type: 'savings',
+        bank: 'Bank of Lagos'
+      })
+      .end((err, res) => {
+        expect(res).to.have.status(201);
+        expect(res.body.success).to.be.equal('true');
+        expect(res.body.data).to.have.key('id', 'accountNumber', 'user', 'bank', 'lastName', 'type', 'openingBalance', 'status');
+        done();
+      });
+  });
+  it('should require a bank', (done) => {
+    chai.request(app)
+      .post(`$accountURL`)
+      .send({
+        userId: 2,
+        type: 'savings',
+        bank: ''
+      })
+      .end((err, res) => {
+        expect(res).to.have.status(422);
+        expect(res.body.success).to.be.equal('false');
+        expect(res.body.error).to.be.equal('Specify a bank');
+        done();
+      });
+  });
+
+  it('should not get accounts for non admin user', (done) => {
+    chai.request(app)
+      .get(`{accountURL}`)
+      .send({
+        data: {type: 'user'},
+      })
+      .end((err, res) => {
+        expect(res).to.have.status(403);
+        expect(res.body.success).to.be.equal('false');
+        expect(res.body.error).to.be.equal('Unathorized');
+        done();
+      });
+  });
+
+  it('should get accounts for admin user', (done) => {
+    chai.request(app)
+      .get('{accountURL}')
+      .send({
+        data: {type: 'admin'},
+      })
+      .end((err, res) => {
+        expect(res).to.have.status(200);
+        expect(res.body.success).to.be.equal('true');
+        expect(res.body.error).to.be.equal('Accounts retrieved successfully');
+        done();
+      });
+  });
+
+  it('should update accounts for admin user', (done) => {
+    chai.request(app)
+      .patch('{accountURL}')
+      .send({
+        data: {type: 'admin'},
+      })
+      .end((err, res) => {
+        expect(res).to.have.status(200);
+        expect(res.body.success).to.be.equal('true');
+        done();
+      });
+  });
+
+  it('should not update accounts for non admin user', (done) => {
+    chai.request(app)
+      .patch(`{accountURL}`)
+      .send({
+        data: {type: 'user'},
+      })
+      .end((err, res) => {
+        expect(res).to.have.status(403);
+        expect(res.body.success).to.be.equal('false');
+        expect(res.body.error).to.be.equal('Unathorized');
+        done();
+      });
+  });
+
+  it('should not update accounts that does not exist', (done) => {
+    chai.request(app)
+      .patch(`{accountURL}+'/1000000000'`)
+      .send({
+        data: {type: 'admin'},
+      })
+      .end((err, res) => {
+        expect(res).to.have.status(404);
+        expect(res.body.success).to.be.equal('false');
+        expect(res.body.error).to.be.equal('Account not found');
+        done();
+      });
+  });
+
+  it('should not get accounts that does not exist', (done) => {
+    chai.request(app)
+      .get(`{accountURL}+'/1000000000'`)
+      .send({
+        data: {type: 'admin'},
+      })
+      .end((err, res) => {
+        expect(res).to.have.status(404);
+        expect(res.body.success).to.be.equal('false');
+        expect(res.body.error).to.be.equal('Account not found');
+        done();
+      });
+  });
+
+  it('should get specific account for admin user', (done) => {
+    chai.request(app)
+      .get('{accountURL}')
+      .send({
+        data: {type: 'admin'},
+      })
+      .end((err, res) => {
+        expect(res).to.have.status(200);
+        expect(res.body.success).to.be.equal('true');
+        expect(res.body.Account).to.have.key('id', 'accountNumber', 'user', 'bank', 'balance')
+        done();
+      });
+  });
+
+  it('should not delete accounts that does not exist', (done) => {
+    chai.request(app)
+      .delete(`{accountURL}+'/1000000000'`)
+      .send({
+        data: {type: 'admin'},
+      })
+      .end((err, res) => {
+        expect(res).to.have.status(404);
+        expect(res.body.success).to.be.equal('false');
+        expect(res.body.success).to.be.equal('true');
+        expect(res.body.error).to.be.equal('Account deleted successfully found');
+        done();
+      });
+  });
+
+  it('should delete account', (done) => {
+    chai.request(app)
+      .delete(`{accountURL}+'/2'`)
+      .send({
+        data: {type: 'admin'},
+      })
+      .end((err, res) => {
+        expect(res).to.have.status(200);
+        expect(res.body.success).to.be.equal('false');
+        expect(res.body.error).to.be.equal('Account not found');
+        done();
+      });
+  });
+
+  it('should not delete account for non admin users', (done) => {
+    chai.request(app)
+      .delete(`{accountURL}+'/2'`)
+      .send({
+        data: {type: 'user'},
+      })
+      .end((err, res) => {
+        expect(res).to.have.status(403);
+        expect(res.body.success).to.be.equal('false');
+        expect(res.body.error).to.be.equal('Unuthorized');
+        done();
+      });
+  });
+});
+
+//Test transaction controllerreturn 
+describe('POST /api/v1/accounts', () => {
+  it('should not autorize non cashier user', (done) => {
+    chai.request(app)
+      .post(`{transactionURL}`)
+      .send({
+        accountNumber: 1001,
+        amount: 500,
+        type: credit,
+        data: {type: 'user'}
+      })
+      .end((err, res) => {
+        expect(res).to.have.status(403);
+        expect(res.body.success).to.be.equal('false');
+        expect(res.body.error).to.be.equal('Unauthorized');
+        done();
+      });
+  });
+  it('should not autorize non cashier user', (done) => {
+    chai.request(app)
+      .post(`{transactionURL}`)
+      .send({
+        accountNumber: 1001,
+        amount: 500,
+        type: credit,
+        data: {type: 'admin'}
+      })
+      .end((err, res) => {
+        expect(res).to.have.status(403);
+        expect(res.body.success).to.be.equal('false');
+        expect(res.body.error).to.be.equal('Unauthorized');
+        done();
+      });
+  });
+  it('should perform the transaction', (done) => {
+    chai.request(app)
+      .post(`{transactionURL}`)
+      .send({
+        accountNumber: 1001,
+        amount: 500,
+        type: credit,
+        data: {type: 'cashier'}
+      })
+      .end((err, res) => {
+        expect(res).to.have.status(201);
+        expect(res.body.success).to.be.equal('true');
+        done();
+      });
+  });
+  it('should perform the transaction', (done) => {
+    chai.request(app)
+      .post(`{transactionURL}`)
+      .send({
+        accountNumber: 1001,
+        amount: 5,
+        type: debit,
+        data: {type: 'cashier'}
+      })
+      .end((err, res) => {
+        expect(res).to.have.status(200);
+        expect(res.body.success).to.be.equal('true');
+        expect(res.body.accountFound).to.have.key('accountNumber', 'balance', 'oldbalance');
+        done();
+      });
+  });
+  it('should not allow non cashier user to view all accounts', (done) => {
+    chai.request(app)
+      .post(`{transactionURL}`)
+      .send({
+        data: {type: 'user'}
+      })
+      .end((err, res) => {
+        expect(res).to.have.status(403);
+        expect(res.body.success).to.be.equal('false');
+        expect(res.body.error).to.be.equal('Unauthorized');
+        done();
+      });
+  });
+  it('should  allow cashier user to view all accounts', (done) => {
+    chai.request(app)
+      .post(`{transactionURL}`)
+      .send({
+        data: {type: 'cashier'}
+      })
+      .end((err, res) => {
+        expect(res).to.have.status(200);
+        expect(res.body.success).to.be.equal('success');
+        expect(res.body.accountFound).to.have.key('accountNumber', 'balance', 'oldbalance');    
+        done();
+      });
+  });
+  it('should  allow admin user to view all accounts', (done) => {
+    chai.request(app)
+      .post(`{transactionURL}`)
+      .send({
+        data: {type: 'admin'}
+      })
+      .end((err, res) => {
+        expect(res).to.have.status(200);
+        expect(res.body.success).to.be.equal('success');
+        expect(res.body.accountFound).to.have.key('accountNumber', 'balance', 'oldbalance');        
+        done();
+      });
+  });
+
+  it('should not perform transaction if account does not exist', (done) => {
+    chai.request(app)
+      .post(`{transactionURL}`)
+      .send({
+        accountNumber: 1001377773888,
+        amount: 500,
+        type: credit,
+        data: {type: 'cashier'}
+      })
+      .end((err, res) => {
+        expect(res).to.have.status(403);
+        expect(res.body.success).to.be.equal('fail');
+        expect(res.body.error).to.be.equal('Account not found');
+        done();
+      });
+  });
+  it('should  allow admin user to view a specific account', (done) => {
+    chai.request(app)
+      .post(`{transactionURL}/id`)
+      .send({
+        data: {type: 'admin'}
+      })
+      .end((err, res) => {
+        expect(res).to.have.status(200);
+        expect(res.body.success).to.be.equal('success');
+        expect(res.body).to.have.key('accountNumber', 'balance', 'oldbalance');        
+        done();
+      });
+  });
+  it('should  allow client user to view a specific account', (done) => {
+    chai.request(app)
+      .post(`{transactionURL}/id`)
+      .send({
+        data: {type: 'cashier'}
+      })
+      .end((err, res) => {
+        expect(res).to.have.status(200);
+        expect(res.body.success).to.be.equal('success');
+        expect(res.body.accountFound).to.have.key('accountNumber', 'balance', 'oldbalance');        
+        done();
+      });
+  });
+  it('should  allow client user to view a specific account', (done) => {
+    chai.request(app)
+      .post(`{transactionURL}/id`)
+      .send({
+        data: {type: 'user'}
+      })
+      .end((err, res) => {
+        expect(res).to.have.status(403);
+        expect(res.body.success).to.be.equal('false');
+        expect(res.body.accountFound).to.have.key('Unathorized');        
+        done();
+      });
+  });
+  it('should  allow cashier user to view a specific account', (done) => {
+    chai.request(app)
+      .post(`{transactionURL}/id`)
+      .send({
+        data: {type: 'cashier'}
+      })
+      .end((err, res) => {
+        expect(res).to.have.status(200);
+        expect(res.body.success).to.be.equal('success');
+        expect(res.body.transactions).to.have.key('id', 'oldBalance', 'newBalance', amount);        
+        done();
+      });
+  });
+  it('should return fail transaction for insufficient balance in debit transaction', (done) => {
+    chai.request(app)
+      .post(`{transactionURL}`)
+      .send({
+        accountNumber: 1001,
+        amount: 5000000000000,
+        type: debit,
+        data: {type: 'cashier'}
+      })
+      .end((err, res) => {
+        expect(res).to.have.status(422);
+        expect(res.body.success).to.be.equal('false');
+        expect(res.body.error).to.be.equal('Insufficient balance');
         done();
       });
   });
