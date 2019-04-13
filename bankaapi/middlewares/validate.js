@@ -6,10 +6,10 @@ import { auth } from '../middlewares';
 
 
 class validate {
-	validationError = (errors) => {
+	static validationError(errors) {
 		const errorCode = errors.map(error => error.msg);
 		return err;
-	},
+	};
 
 
 	static loginCheck(req, res, next){
@@ -56,22 +56,22 @@ class validate {
 		}
         req.checkBody('type').isIn(['savings', 'current']).withMessage('Choose a valid account type')
             .exists()
-			.withMessage('Specify account type'),
+			.withMessage('Specify account type');
 		req.checkBody('userId')
 			.exists()
-			.withMessage('specify account owner Id')
+			.withMessage('specify account owner Id');
 		req.checkBody('bank')
 		.exists()
-		.withMessage('Specify a bank')
-				
+		.withMessage('Specify a bank');
 
-				.withMessage('Specify account type'),
-            body('openingBalance').isDecimal().withMessage('You should enter only decimal')
-                .exists()
-                .withMessage('Field cannot be empty'),
-        ];
+		const errors = req.validationErrors();
+		if (errors) {
+			const err = auth.validationError(errors);
+			return auth.errorResponse(res, 422, err);
+		}
 		next();
 	}
+
 	static transactionCheck (req, res, next) {
         const accNo = req.body.accountNumber;
         let accountFound = '';

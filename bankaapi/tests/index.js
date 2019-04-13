@@ -61,6 +61,7 @@ describe('POST /api/v1/auth/signup', () => {
         done();
       });
   });
+});
   describe('POST /api/v1/auth/signup', () => {
     it('should not register existing user', (done) => {
       chai.request(app)
@@ -394,6 +395,7 @@ describe('POST /api/v1/transactions', () => {
         done();
       });
   });
+});
 
 //Test transaction controllerreturn 
 describe('POST /api/v1/accounts', () => {
@@ -568,24 +570,20 @@ describe('POST /api/v1/accounts', () => {
         done();
       });
   });
-  
-
-  
-    it('should return fail transaction for insufficient balance in debit transaction', (done) => {
-      chai.request(app)
-        .post(`{transactionURL}`)
-        .send({
-          accountNumber: 1001,
-          amount: 5000000000000,
-          type: debit,
-          data: {type: 'cashier'}
-        })
-        .end((err, res) => {
-          expect(res).to.have.status(422);
-          expect(res.body.success).to.be.equal('false');
-          expect(res.body.error).to.be.equal('Insufficient balance');
-          done();
-        });
+  it('should return fail transaction for insufficient balance in debit transaction', (done) => {
+    chai.request(app)
+      .post(`{transactionURL}`)
+      .send({
+        accountNumber: 1001,
+        amount: 5000000000000,
+        type: debit,
+        data: {type: 'cashier'}
+      })
+      .end((err, res) => {
+        expect(res).to.have.status(422);
+        expect(res.body.success).to.be.equal('false');
+        expect(res.body.error).to.be.equal('Insufficient balance');
+        done();
+      });
   });
-
 });
