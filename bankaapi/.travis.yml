@@ -1,11 +1,19 @@
+sudo: false
 language: node_js
 node_js: 
   - "node"
 script:
-  - npm run test:travis
+  - npm run lint
+  - npm run test:coverage
+  - npm run coveralls
+cache:
+  directories:
+    - "node_modules"
 after_success:
     - npm run coveralls
     - npm install codeclimate-test-reporter
     - codeclimate-test-reporter < coverage/lcov.info
 after_script:
   - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT 
+notifications:
+  email: false
