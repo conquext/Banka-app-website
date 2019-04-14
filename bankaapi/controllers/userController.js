@@ -1,4 +1,4 @@
-import { db } from '../db/db';
+import { users } from '../db/db';
 import User from '../models/user'
 import { config } from 'dotenv';
 import jwt from 'jsonwebtoken';
@@ -6,8 +6,6 @@ import jwt from 'jsonwebtoken';
 config();
 
 const secret = process.env.JWT_SECRET;
-
-const { users } = db;
 
 class UserController {
   //Login a user

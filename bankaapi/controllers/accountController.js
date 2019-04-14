@@ -1,7 +1,6 @@
-import { db } from '../db/db';
+import { users, accounts } from '../db/db';
 import Account from '../models/account';
 
-const { users, accounts } = db;
 
 class AccountController {
   //creates an account

@@ -1,8 +1,6 @@
-import { db } from '../db/db';
+import { accounts, transactions } from '../db/db';
 import Transaction from '../models/transaction';
 
-
-const { accounts, transactions } = db;
 
 class TransactionController {
     //creates a credit or debit transaction
