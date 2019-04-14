@@ -6,7 +6,9 @@ import validateMiddleware from '../middlewares/validateMiddleware';
 
 const router = Router();
 
-const { getAllUsers, getUser, updateUser, deleteUser, promoteUser } = userController;
+const {
+  getAllUsers, getUser, updateUser, deleteUser, promoteUser,
+} = userController;
 const { authAdmin, authStaff, authAdminOrIsUser } = permissionsMiddleware;
 const { authenticateUser } = authMiddleware;
 const { validateUserUpdate } = validateMiddleware;

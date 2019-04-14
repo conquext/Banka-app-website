@@ -1,9 +1,9 @@
-import accountRouter from './routes/accountRouter';
-import authRouter from './routes/authRouter';
 import bodyParser from 'body-parser';
 import express from 'express';
 import expressValidator from 'express-validator';
 import path from 'path';
+import authRouter from './routes/authRouter';
+import accountRouter from './routes/accountRouter';
 import transactionRouter from './routes/transactionRouter';
 import userRouter from './routes/userRouter';
 

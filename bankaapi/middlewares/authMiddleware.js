@@ -1,26 +1,26 @@
+import jwt from 'jsonwebtoken';
 import * as config from '../config';
 
-import jwt from 'jsonwebtoken';
 
 export default class AuthMiddleware {
-   static generateToken(user) {
-        const jwtToken = jwt.sign({ user }, secret, { expiresIn: 86400 });
-        return jwtToken;
-    }
+  static generateToken(user) {
+    const jwtToken = jwt.sign({ user }, secret, { expiresIn: 86400 });
+    return jwtToken;
+  }
 
-   static errorResponse(res, statusCode, error) {
+  static errorResponse(res, statusCode, error) {
     return res.status(statusCode).send({
       success: 'false',
       status: statusCode,
-      error: error[0]
+      error: error[0],
     });
   }
 
-   static successResponse(res, statusCode, success) {
+  static successResponse(res, statusCode, success) {
     return res.status(statusCode).send({
       success: 'true',
       status: statusCode,
-      message: succes
+      message: succes,
     });
   }
 
@@ -33,21 +33,20 @@ export default class AuthMiddleware {
     if (!req.headers.authorization) {
       return res.status(401).json({
         success: 'false',
-				error: 'Unathorized. Token not found'
-      })
+        error: 'Unathorized. Token not found',
+      });
     }
-    const decoded = jwt.decode(req.headers.authorization, {secret: config.secret});
+    const decoded = jwt.decode(req.headers.authorization, { secret: config.secret });
     if (!decoded) {
       return res.status(401).json({
         success: 'false',
-				error: 'Unathorized. Token invalid'
-      })
-    } else {
-      req.data = {
-        type: decoded.user.type,
-        id: decoded.user.id
-      }
-      next();
+        error: 'Unathorized. Token invalid',
+      });
     }
+    req.data = {
+      type: decoded.user.type,
+      id: decoded.user.id,
+    };
+    next();
   }
 }

@@ -4,6 +4,7 @@ node_js:
   - "node"
 script:
   - cd bankaapi
+  - npm install
   - npm run lint
   - npm test
   - npm run test:coveralls

@@ -28,11 +28,10 @@ class Account {
   debit(amount){
     if(this.balance >= amount){
       this.balance-= amount;
-    } 
+    }
   }
   */
 }
-
 
 
 /*

@@ -1,12 +1,16 @@
 import { Router } from 'express';
 import accountController from '../controllers/accountController';
 import authorizeMiddleware from '../middlewares/permissionsMiddleware';
-import validateMiddleware from '../middlewares/validateMiddleware'
+import validateMiddleware from '../middlewares/validateMiddleware';
 
 const router = Router();
 
-const { createAccount, getAllAccounts, getAccount, updateAccount, deleteAccount } = accountController;
-const { authUser, authAdminOrIsUser, authAdmin, authStaff } = authorizeMiddleware;
+const {
+  createAccount, getAllAccounts, getAccount, updateAccount, deleteAccount,
+} = accountController;
+const {
+  authUser, authAdminOrIsUser, authAdmin, authStaff,
+} = authorizeMiddleware;
 const { accountCheck } = validateMiddleware;
 
 router.post('', authUser, accountCheck, createAccount);
