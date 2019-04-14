@@ -227,7 +227,7 @@ describe('POST /api/v1/auth/signup', () => {
 describe('POST /api/v1/transactions', () => {
   it('should create a new transaction', (done) => {
     chai.request(app)
-      .post(`$transactionURL`)
+      .post(`${transactionURL}`)
       .send({
         userId: 2,
         type: 'savings',
@@ -242,7 +242,7 @@ describe('POST /api/v1/transactions', () => {
   });
   it('should require a bank', (done) => {
     chai.request(app)
-      .post(`$accountURL`)
+      .post(`${accountURL}`)
       .send({
         userId: 2,
         type: 'savings',
@@ -258,7 +258,7 @@ describe('POST /api/v1/transactions', () => {
 
   it('should not get accounts for non admin user', (done) => {
     chai.request(app)
-      .get(`{accountURL}`)
+      .get(`${accountURL}`)
       .send({
         data: {type: 'user'},
       })
@@ -270,9 +270,9 @@ describe('POST /api/v1/transactions', () => {
       });
   });
 
-  it('should get accounts for admin user', (done) => {
+  it('should get accounts', (done) => {
     chai.request(app)
-      .get('{accountURL}')
+      .get(`${accountURL}`)
       .send({
         data: {type: 'admin'},
       })
@@ -284,9 +284,9 @@ describe('POST /api/v1/transactions', () => {
       });
   });
 
-  it('should update accounts for admin user', (done) => {
+  it('should update accounts', (done) => {
     chai.request(app)
-      .patch('{accountURL}')
+      .patch(`${accountURL}`)
       .send({
         data: {type: 'admin'},
       })
@@ -299,7 +299,7 @@ describe('POST /api/v1/transactions', () => {
 
   it('should not update accounts for non admin user', (done) => {
     chai.request(app)
-      .patch(`{accountURL}`)
+      .patch(`${accountURL}`)
       .send({
         data: {type: 'user'},
       })
@@ -313,7 +313,7 @@ describe('POST /api/v1/transactions', () => {
 
   it('should not update accounts that does not exist', (done) => {
     chai.request(app)
-      .patch(`{accountURL}+'/1000000000'`)
+      .patch(`${accountURL}/1000000000`)
       .send({
         data: {type: 'admin'},
       })
@@ -327,7 +327,7 @@ describe('POST /api/v1/transactions', () => {
 
   it('should not get accounts that does not exist', (done) => {
     chai.request(app)
-      .get(`{accountURL}+'/1000000000'`)
+      .get(`${accountURL}1000000000`)
       .send({
         data: {type: 'admin'},
       })
@@ -339,9 +339,9 @@ describe('POST /api/v1/transactions', () => {
       });
   });
 
-  it('should get specific account for admin user', (done) => {
+  it('should get a specific account', (done) => {
     chai.request(app)
-      .get('{accountURL}')
+      .get(`${accountURL}`)
       .send({
         data: {type: 'admin'},
       })
@@ -352,10 +352,35 @@ describe('POST /api/v1/transactions', () => {
         done();
       });
   });
-
+  it('should get all accounts of a specific user', (done) => {
+    chai.request(app)
+      .get(`{accountURL}?owner=Name1`)
+      .send({
+        data: {type: 'admin'},
+      })
+      .end((err, res) => {
+        expect(res).to.have.status(200);
+        expect(res.body.success).to.be.equal('true');
+        expect(res.body.message).to.be.equal('Accounts retrieved successfully')
+        done();
+      });
+  });
+  it('should get specific account of a user', (done) => {
+    chai.request(app)
+      .get(`${accountURL}?email=email3@email.com`)
+      .send({
+        data: {type: 'admin'},
+      })
+      .end((err, res) => {
+        expect(res).to.have.status(200);
+        expect(res.body.success).to.be.equal('true');
+        expect(res.body.message).to.be.equal('Account retrieved successfully')
+        done();
+      });
+  });
   it('should not delete accounts that does not exist', (done) => {
     chai.request(app)
-      .delete(`{accountURL}+'/1000000000'`)
+      .delete(`${accountURL}/1000000000`)
       .send({
         data: {type: 'admin'},
       })
@@ -370,7 +395,7 @@ describe('POST /api/v1/transactions', () => {
 
   it('should delete account', (done) => {
     chai.request(app)
-      .delete(`{accountURL}+'/2'`)
+      .delete(`${accountURL}/2`)
       .send({
         data: {type: 'admin'},
       })
@@ -381,12 +406,24 @@ describe('POST /api/v1/transactions', () => {
         done();
       });
   });
-
-  it('should not delete account for non admin users', (done) => {
+  it('should not delete account with user privilege', (done) => {
     chai.request(app)
-      .delete(`{accountURL}+'/2'`)
+      .delete(`${accountURL}/2`)
       .send({
         data: {type: 'user'},
+      })
+      .end((err, res) => {
+        expect(res).to.have.status(403);
+        expect(res.body.success).to.be.equal('false');
+        expect(res.body.error).to.be.equal('Unuthorized');
+        done();
+      });
+  });
+  it('should not delete account with cashier privilege', (done) => {
+    chai.request(app)
+      .delete(`${accountURL}/2`)
+      .send({
+        data: {type: 'cashier'},
       })
       .end((err, res) => {
         expect(res).to.have.status(403);
@@ -399,9 +436,9 @@ describe('POST /api/v1/transactions', () => {
 
 //Test transaction controllerreturn 
 describe('POST /api/v1/accounts', () => {
-  it('should not autorize non cashier user', (done) => {
+  it('should not authorize non cashier user to make transactions', (done) => {
     chai.request(app)
-      .post(`{transactionURL}`)
+      .post(`${transactionURL}`)
       .send({
         accountNumber: 1001,
         amount: 500,
@@ -415,9 +452,9 @@ describe('POST /api/v1/accounts', () => {
         done();
       });
   });
-  it('should not autorize non cashier user', (done) => {
+  it('should not autorize non cashier user to make transactions', (done) => {
     chai.request(app)
-      .post(`{transactionURL}`)
+      .post(`${transactionURL}`)
       .send({
         accountNumber: 1001,
         amount: 500,
@@ -433,7 +470,7 @@ describe('POST /api/v1/accounts', () => {
   });
   it('should perform the transaction', (done) => {
     chai.request(app)
-      .post(`{transactionURL}`)
+      .post(`${transactionURL}`)
       .send({
         accountNumber: 1001,
         amount: 500,
@@ -448,7 +485,7 @@ describe('POST /api/v1/accounts', () => {
   });
   it('should perform the transaction', (done) => {
     chai.request(app)
-      .post(`{transactionURL}`)
+      .post(`${transactionURL}`)
       .send({
         accountNumber: 1001,
         amount: 5,
@@ -458,13 +495,13 @@ describe('POST /api/v1/accounts', () => {
       .end((err, res) => {
         expect(res).to.have.status(200);
         expect(res.body.success).to.be.equal('true');
-        expect(res.body.accountFound).to.have.key('accountNumber', 'balance', 'oldbalance');
+        expect(res.body.transactionFound).to.have.key('accountNumber', 'balance', 'oldbalance');
         done();
       });
   });
-  it('should not allow non cashier user to view all accounts', (done) => {
+  it('should not allow users to view all transactions', (done) => {
     chai.request(app)
-      .post(`{transactionURL}`)
+      .get(`${transactionURL}`)
       .send({
         data: {type: 'user'}
       })
@@ -475,9 +512,61 @@ describe('POST /api/v1/accounts', () => {
         done();
       });
   });
-  it('should  allow cashier user to view all accounts', (done) => {
+  it('should not allow users to view other users transactions', (done) => {
     chai.request(app)
-      .post(`{transactionURL}`)
+      .get(`${transactionURL}/3`)
+      .send({
+        data: {name: 'Name2', type: 'user'}
+      })
+      .end((err, res) => {
+        expect(res).to.have.status(403);
+        expect(res.body.success).to.be.equal('false');
+        expect(res.body.error).to.be.equal('Unauthorized');
+        done();
+      });
+  });
+  it('should allow users to view own transactions', (done) => {
+    chai.request(app)
+      .get(`${transactionURL}/2`)
+      .send({
+        data: {name: 'Name2', type: 'user'}
+      })
+      .end((err, res) => {
+        expect(res).to.have.status(201);
+        expect(res.body.success).to.be.equal('success');
+        expect(res.body.transactionFound).to.have.key('accountNumber', 'balance', 'oldbalance');    
+        done();
+      });
+  });
+  it('should allow users to view own transactions', (done) => {
+    chai.request(app)
+      .get(`${transactionURL}?email=email3@email.com`)
+      .send({
+        data: {name: 'Name3', type: 'user'}
+      })
+      .end((err, res) => {
+        expect(res).to.have.status(201);
+        expect(res.body.success).to.be.equal('success');
+        expect(res.body.transactionFound).to.have.key('accountNumber', 'balance', 'oldbalance');    
+        done();
+      });
+  });
+  it('should allow users to view own transactions', (done) => {
+    chai.request(app)
+      .get(`${transactionURL}?id=3`)
+      .send({
+        data: {name: 'Name3', type: 'user'}
+      })
+      .end((err, res) => {
+        expect(res).to.have.status(201);
+        expect(res.body.success).to.be.equal('success');
+        expect(res.body.transactionFound).to.have.key('accountNumber', 'balance', 'oldbalance');    
+        done();
+      });
+  });
+  it('should  allow cashier user to view all transactions', (done) => {
+    chai.request(app)
+      .post(`${transactionURL}`)
       .send({
         data: {type: 'cashier'}
       })
@@ -488,9 +577,22 @@ describe('POST /api/v1/accounts', () => {
         done();
       });
   });
-  it('should  allow admin user to view all accounts', (done) => {
+  it('should allow cashier user to view all transactions of a specific user', (done) => {
     chai.request(app)
-      .post(`{transactionURL}`)
+      .post(`${transactionURL}?email=name3@email.com`)
+      .send({
+        data: {type: 'cashier'}
+      })
+      .end((err, res) => {
+        expect(res).to.have.status(200);
+        expect(res.body.success).to.be.equal('success');
+        expect(res.body.accountFound).to.have.key('accountNumber', 'balance', 'oldbalance');    
+        done();
+      });
+  });
+  it('should  allow admin user to view all transactions', (done) => {
+    chai.request(app)
+      .post(`${transactionURL}`)
       .send({
         data: {type: 'admin'}
       })
@@ -501,10 +603,22 @@ describe('POST /api/v1/accounts', () => {
         done();
       });
   });
-
+  it('should  allow admin user to view all transactions of a specific user', (done) => {
+    chai.request(app)
+      .post(`${transactionURL}?email=name3@email.com`)
+      .send({
+        data: {type: 'admin'}
+      })
+      .end((err, res) => {
+        expect(res).to.have.status(200);
+        expect(res.body.success).to.be.equal('success');
+        expect(res.body.accountFound).to.have.key('accountNumber', 'balance', 'oldbalance');    
+        done();
+      });
+  });
   it('should not perform transaction if account does not exist', (done) => {
     chai.request(app)
-      .post(`{transactionURL}`)
+      .post(`${transactionURL}`)
       .send({
         accountNumber: 1001377773888,
         amount: 500,
@@ -520,7 +634,7 @@ describe('POST /api/v1/accounts', () => {
   });
   it('should  allow admin user to view a specific account', (done) => {
     chai.request(app)
-      .post(`{transactionURL}/id`)
+      .post(`${transactionURL}/id`)
       .send({
         data: {type: 'admin'}
       })
@@ -531,35 +645,9 @@ describe('POST /api/v1/accounts', () => {
         done();
       });
   });
-  it('should  allow client user to view a specific account', (done) => {
-    chai.request(app)
-      .post(`{transactionURL}/id`)
-      .send({
-        data: {type: 'cashier'}
-      })
-      .end((err, res) => {
-        expect(res).to.have.status(200);
-        expect(res.body.success).to.be.equal('success');
-        expect(res.body.accountFound).to.have.key('accountNumber', 'balance', 'oldbalance');        
-        done();
-      });
-  });
-  it('should  allow client user to view a specific account', (done) => {
-    chai.request(app)
-      .post(`{transactionURL}/id`)
-      .send({
-        data: {type: 'user'}
-      })
-      .end((err, res) => {
-        expect(res).to.have.status(403);
-        expect(res.body.success).to.be.equal('false');
-        expect(res.body.accountFound).to.have.key('Unathorized');        
-        done();
-      });
-  });
   it('should  allow cashier user to view a specific account', (done) => {
     chai.request(app)
-      .post(`{transactionURL}/id`)
+      .post(`${transactionURL}/id`)
       .send({
         data: {type: 'cashier'}
       })
@@ -572,7 +660,7 @@ describe('POST /api/v1/accounts', () => {
   });
   it('should return fail transaction for insufficient balance in debit transaction', (done) => {
     chai.request(app)
-      .post(`{transactionURL}`)
+      .post(`${transactionURL}`)
       .send({
         accountNumber: 1001,
         amount: 5000000000000,
