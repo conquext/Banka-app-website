@@ -7,7 +7,7 @@ script:
   - npm install
   - npm run lint
   - npm test
-  - npm run test:coveralls
+  - npm run test-coveralls
   - npm run coveralls
 cache:
   directories:
