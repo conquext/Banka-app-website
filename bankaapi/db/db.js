@@ -1,53 +1,52 @@
-
-let users = [
+export let users = [
   {
-    id = 1,
-    name = 'Name1',
-    email = 'email1@email.com',
-    password = 'password1',
-    dob = 01/01/1990,
-    state = 'Lagos',
-    country = 'Nigeria',
-    phoneNumber = 080001,
-    accountNumber = 1000,
-    loggedIn = false,
-    type = 'user',
-    createdAt = new Date(1,1,2019),
-    lastLoggedInAt = new Date(1,1,2019)
+    id: 1,
+    name: 'Name1',
+    email: 'email1@email.com',
+    password: 'password1',
+    dob: new Date (1,1,1990),
+    state: 'Lagos',
+    country: 'Nigeria',
+    phoneNumber: '080001',
+    accountNumber: 1000,
+    loggedIn: false,
+    type: 'user',
+    createdAt: new Date(1,1,2019),
+    lastLoggedInAt: new Date(1,1,2019)
   },
   {
-    id = 2,
-    name = 'Name2',
-    email = 'email2@email.com',
-    password = 'password1',
-    dob = 01/02/1991,
-    state = 'Lagos',
-    country = 'Nigeria',
-    phoneNumber = 080002,
-    accountNumber = 1001,
-    loggedIn = false,
-    type = 'user',
-    createdAt = new Date(1,2,2019),
-    lastLoggedInAt = new Date(1,2,2019)
+    id: 2,
+    name: 'Name2',
+    email: 'email2@email.com',
+    password: 'password1',
+    dob: new Date (1,2,1992),
+    state: 'Lagos',
+    country: 'Nigeria',
+    phoneNumber: '080002',
+    accountNumber: 1001,
+    loggedIn: false,
+    type: 'user',
+    createdAt: new Date(1,2,2019),
+    lastLoggedInAt: new Date(1,2,2019)
   },
   {
-    id = 3,
-    name = 'Name3',
-    email = 'email3@email.com',
-    password = 'password1',
-    dob = 01/03/1993,
-    state = 'Lagos',
-    country = 'Nigeria',
-    phoneNumber = 080003,
-    accountNumber = 1002,
-    loggedIn = false,
-    type = 'cashier',
-    createdAt = new Date(1,3,2019),
-    lastLoggedInAt = new Date(1,3,2019)
+    id: 3,
+    name: 'Name3',
+    email: 'email3@email.com',
+    password: 'password1',
+    dob: new Date (1,3,1993),
+    state: 'Lagos',
+    country: 'Nigeria',
+    phoneNumber: '080003',
+    accountNumber: 1002,
+    loggedIn: false,
+    type: 'cashier',
+    createdAt: new Date(1,3,2019),
+    lastLoggedInAt: new Date(1,3,2019)
   },
 ]
 
-let accounts = [
+export let accounts = [
   {
     id: 1,
     accountNumber: 1000,
@@ -88,13 +87,13 @@ let accounts = [
   },
 ]
 
-let transactions = [
+export let transactions = [
   {
     id: 1,
     createdOn: new Date(1, 1, 2019),
     transactionType: 'credit',
     type: 'savings',
-    accountNumber: 0001,
+    accountNumber: 1000,
     amount: 10.0,
     oldBalance: 60,
     newBalance: 70
@@ -104,7 +103,7 @@ let transactions = [
     createdOn: new Date(1, 2, 2019),
     transactionType: 'credit',
     type: 'savings',
-    accountNumber: 0002,
+    accountNumber: 1001,
     amount: 100.0,
     oldBalance: 103,
     newBalance: 203
@@ -114,11 +113,9 @@ let transactions = [
     createdOn: new Date(1, 3, 2019),
     transactionType: 'debit',
     type: 'savings',
-    accountNumber: 0002,
+    accountNumber: 1001,
     amount: 50.0,
     oldBalance: 203,
     newBalance: 153
   }
 ]
-
-export {users, accounts, transactions};
