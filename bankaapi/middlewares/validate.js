@@ -1,7 +1,5 @@
-import { db } from '../db/db';
+import { users, accounts } from '../db/db';
 import auth  from '../middlewares/auth';
-
-const { users, accounts } = db;
 
 class Validate {
 	static validationError(errors) {
@@ -97,5 +95,5 @@ class Validate {
 	}
 }
 
-validate = new Validate();
+const validate = new Validate();
 export default validate;

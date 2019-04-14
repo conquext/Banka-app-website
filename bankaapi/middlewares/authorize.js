@@ -54,5 +54,5 @@ class Authorize {
 	}
 }
 
-authorize = new Authorize();
+const authorize = new Authorize();
 export default authorize;
