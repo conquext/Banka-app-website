@@ -1,6 +1,9 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-import { authRouter, userRouter, accountRouter, transactionRouter } from '../routes';
+import authRouter from './routes/authRouter';
+import userRouter from './routes/userRouter';
+import accountRouter from './routes/accountRouter';
+import transactionRouter from './routes/transactionRouter';
 
 
 const app = express();
@@ -11,6 +14,8 @@ app.use(bodyParser.json({ type: 'application/json' }));
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(expressValidator());
+
+app.use('/api/v1/', express.static(path.join(__dirname, 'routes')));
 
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/users', userRouter);
