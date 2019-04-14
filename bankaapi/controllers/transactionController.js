@@ -1,12 +1,13 @@
 import { accounts, transactions } from '../db/db';
+
 import Transaction from '../models/transaction';
 
-
-class TransactionController {
+export default class TransactionController {
     //creates a credit or debit transaction
     static newTransaction(req, res) {
     try {
-        const { accountNumber, amount, type } = req.body;
+        const { accountNumber, type } = req.body;
+        let { amount } = req.body;
         const newId = transactions[transactions.length - 1].id + 1;
         let this_transaction = new Transaction(newId, accountNumber, amount, type);
         
@@ -147,6 +148,3 @@ class TransactionController {
         }
     }
 }
-
-const transactionController = new TransactionController();
-export default transactionController;

@@ -1,44 +1,35 @@
-import { users } from '../db/db';
-import User from '../models/user'
-import { config } from 'dotenv';
+import * as config from './../config';
+
+import User from '../models/user';
+import UserHelper from '../helpers/userHelper';
 import jwt from 'jsonwebtoken';
+import { users } from '../db/db';
 
-config();
-
-const secret = process.env.JWT_SECRET;
-
-class UserController {
+export default class UserController {
   //Login a user
   static login(req, res){
     try{
       const { email, password } = req.body;
-      const registeredUser = () => {
-        for(let i = 0; i < users.length; i++){
-          if(users[i].email == email){
-            return users[i];
-          }
-          return false;
-        }
-      }
-      if (!registeredUser) {
+      const user = UserHelper.findUserByEmail(email);
+      if (!user) {
         return res.status(401).json({
             success: 'false',
             error: 'Incorrect email',
         });
       }
-      if (registeredUser.password != password) {
+      if (user.password !== password) {
         return res.status(401).json({
           success: 'false',
           error: 'Wrong password',
         });
       }
       
-      const jwtToken = jwt.sign({ user: registeredUser }, secret, { expiresIn: 86400 });
+      const jwtToken = jwt.sign({ user }, config.secret, { expiresIn: 86400 });
 
       const data = {
-        id: registeredUser.id,
-        email: registeredUser.email,
-        type: registeredUser.type,
+        id: user.id,
+        email: user.email,
+        type: user.type,
         token: jwtToken
       };
       
@@ -53,7 +44,6 @@ class UserController {
       return res.status(500).json({
       success: 'false',
       message: 'Something went wrong',
-      token: `Bearer ${jwtToken}`
       });
     }
   }
@@ -61,7 +51,7 @@ class UserController {
  //register a new user
   static signup(req, res){
     try{
-      const { name, email, password, confirm_password } = req.body;
+      const { name, email, password, confirmPassword } = req.body;
       const registeredUser = users.some(user => user.email == email);
       if (registeredUser) {
         return res.status(409).json({
@@ -69,7 +59,7 @@ class UserController {
           error: 'User already exists'
         });
       }
-      if (password !== confirm_password){
+      if (password !== confirmPassword){
         return res.status(422).json({
           success: 'false',
           error: 'Passwords must match'
@@ -77,7 +67,7 @@ class UserController {
       }
       if (!registeredUser) {
         const newId = users[users.length - 1].id + 1;
-        const newUser = new User(newId, name, email, password);
+        const newUser = new User({id: newId, name, email, password});
 
         users.push(newUser);
 
@@ -113,7 +103,7 @@ class UserController {
           return res.status(201).json({
               success: 'true',
               message: 'Users retrieved successfully',
-              Users: [...users]
+              users
               });
         }
         return res.status(404).json({
@@ -133,21 +123,19 @@ class UserController {
     try{
         const id = parseInt(req.params.id);
         let result = '';
-        for(var i = 0; i < users.length; i++){
-            if (id === user[i].id) {
-                result = user[i];
-                return res.status(201).json({
-                  success: 'true',
-                  message: 'User retrieved successfully ',
-                  User: result
-                });
-            }
-            else {
-                return res.status(404).json({
-                  success: 'false',
-                  message: 'Not found',
-                });
-            }
+        const user = UserHelper.findUserById(id);
+        if(user){
+          return res.status(200).json({
+            success: 'true',
+            message: 'User retrieved successfully ',
+            user
+          });
+        }
+        else {
+            return res.status(404).json({
+              success: 'false',
+              message: 'Not found'
+            });
         }
     }
     catch (error) {
@@ -161,29 +149,26 @@ class UserController {
   static updateUser(req, res) {
     try {
       const id = parseInt(req.params.id);
-      const {email} = req.body || '';
-      let userFound = '';
-      users.map((user) => {
-          if (user.id === id || user.email === email) {
-              userFound = user;
-          }
-      });
-      if (!userFound) {
+      const email = req.query.email || "";
+      const user = UserHelper.findUserById(id) || UserHelper.findUserByEmail(email);
+      console.log(user);
+      if (!user) {
           return res.status(404).json({
             success: 'false',
             message: 'User not found'
           });
       }
-      for (const [key, value] of Object.keys(req.body)) {
-        userFound.key = value;
+      for (const [key, value] of Object.entries(req.body)) {
+        user[key] = value;
       }
       return res.status(200).json({
           success: 'true',
           message: 'User updated successfully',
-          user: userFound
+          user
       });
     }
     catch (error) {
+      console.log(error);
       return res.status(500).json({
           success: 'false',
           message: 'Something went wrong'
@@ -232,7 +217,7 @@ class UserController {
   static deleteUser(req, res) {
     try {
       const id = parseInt(req.params.id);
-      const {email} = req.body || '';
+      const { email } = req.body || '';
       let userFound;
       let userIndex;
       users.map((user, index) => {
@@ -262,7 +247,3 @@ class UserController {
   }
 
 }
-
-
-const userController = new UserController;
-export default userController;

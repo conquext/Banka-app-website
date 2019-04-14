@@ -1,13 +1,13 @@
-class User{
-  constructor(id = '', name, email, password, dob = "", state = "", phoneNumber = ""){
-      this.id = id;
+export default class User {
+  constructor({id, name, email, password, dob, state, phoneNumber, country }) {
+      this.id = id || '';
       this.name = name;
       this.email = email;
       this.password = password;
-      this.dob = dob;
-      this.state = state;
-      this.country = country;
-      this.phoneNumber = phoneNumber;
+      this.dob = dob || '';
+      this.state = state || '';
+      this.country = country || '';
+      this.phoneNumber = phoneNumber || '';
       this.accountNumber = '';
       this.loggedIn = false;
       this.type = 'user';
@@ -105,5 +105,3 @@ const user = [
 }
 ];
 */
-
-export default { User };

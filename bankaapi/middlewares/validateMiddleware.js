@@ -1,7 +1,8 @@
-import { users, accounts } from '../db/db';
-import auth  from '../middlewares/auth';
+import { accounts, users } from '../db/db';
 
-class Validate {
+import authMiddleware  from './authMiddleware';
+
+export default class ValidateMiddleware {
 	static validationError(errors) {
 		const errorCode = errors.map(error => error.msg);
 		return err;
@@ -9,40 +10,38 @@ class Validate {
 
 
 	static loginCheck(req, res, next){
-		req.checkBody('firstName').isLength({ min: 1 }).withMessage('Field cannot be empty');
-    	req.checkBody('email').isEmail().withMessage('Email is invalid');
+    req.checkBody('email').isLength({min: 1}).withMessage('Email is required');
+  	req.checkBody('email').isEmail().withMessage('Email is invalid');
+    req.checkBody('password').isLength({min: 1}).withMessage('Password is required');
 
 		const errors = req.validationErrors();
 		if (errors) {
-			const err = auth.validationError(errors);
-			return auth.errorResponse(res, 422, err);
+			const err = authMiddleware.validationError(errors);
+			return authMiddleware.errorResponse(res, 422, err);
 		}
 		next();
 	}
 
 	static signupCheck(req, res, next) {
-		if( !req.data.type.cashier ){
-			return res.status(403).json({
-				success: 'false',
-				error: 'Unathorized'
-			});
-		}
-		req.checBody('name').isAlpha().withMessage('You should enter only alphabets')
+    req.checkBody('name').isLength({min: 1}).withMessage('Name is required');
+    req.checkBody('name').isLength({min: 3}).withMessage('Name should contain more than 2 characters');
+		req.checkBody('name').isAlpha().withMessage('You should enter only alphabets')
 		.exists().withMessage('Please enter your name');
-		req.checkBody('name').isLength({min: 3}).withMessage('Name should contain more than 2 characters');
+    req.checkBody('email').isLength({min: 1}).withMessage('Email is required');
+    req.checkBody('password').isLength({min: 1}).withMessage('Password is required');
 		req.checkBody('email').isEmail().withMessage('Email is invalid');
-		req.checkBody('password').isAlphanumberic().withMessage('Password should be alphanumeric')
-		.isLength({ min: 6 }).withMessage('Should be atleast 6 characters')
+		// req.checkBody('password').isAlphaNumeric().withMessage('Password should be alphanumeric')
+		req.checkBody('password').isLength({ min: 6 }).withMessage('Should be atleast 6 characters')
         .exists().withMessage('Password is required');
 		
 		const errors = req.validationErrors();
 		if (errors) {
-			const err = auth.validationError(errors);
-			return auth.errorResponse(res, 422, err);
+			const err = authMiddleware.validationError(errors);
+			return authMiddleware.errorResponse(res, 422, err);
 		}
 		next();
-	}
-
+  }
+  
 	static accountCheck (req, res, next){
 		if( !req.data.type.admin ){
 			return res.status(403).json({
@@ -62,8 +61,8 @@ class Validate {
 
 		const errors = req.validationErrors();
 		if (errors) {
-			const err = auth.validationError(errors);
-			return auth.errorResponse(res, 422, err);
+			const err = authMiddleware.validationError(errors);
+			return authMiddleware.errorResponse(res, 422, err);
 		}
 		next();
 	}
@@ -92,8 +91,15 @@ class Validate {
 			});
 		}
 		next();
+  }
+  static validateUserUpdate(req, res, next) {
+    req.checkBody('id').isLength({max: 0}).withMessage('Id cannot be updated');
+		
+		const errors = req.validationErrors();
+		if (errors) {
+			const err = authMiddleware.validationError(errors);
+			return authMiddleware.errorResponse(res, 422, err);
+		}
+		next();
 	}
-}
-
-const validate = new Validate();
-export default validate;
+};

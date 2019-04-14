@@ -1,8 +1,8 @@
-import { users, accounts } from '../db/db';
+import { accounts, users } from '../db/db';
+
 import Account from '../models/account';
 
-
-class AccountController {
+export default class AccountController {
   //creates an account
   static createAccount(req, res) {
     try{
@@ -44,8 +44,8 @@ class AccountController {
   static getAllAccounts(req, res) {
     try{
       if (req.body || req.params || req.query.id) {
-        const id = parseInt(req.params.id) || req.query.id;
-        const { email, id, accountNumber } = req.query;
+        const id = parseInt(req.params.id) || parseInt(req.query.id);
+        const { email, accountNumber } = req.query;
         const queryString = email || id || accountNumber
         const theQuery = Object.keys(req.query)[0];
         let accountsFound = [];
@@ -188,6 +188,3 @@ class AccountController {
       }
   }
 }
-    
-const accountController = new AccountController();
-export default accountController;

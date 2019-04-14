@@ -52,7 +52,7 @@ describe('POST /api/v1/auth/signup', () => {
         name: 'Adekunle Ajala',
         email: '',
         password: 'password1',
-        confirm_password: 'password1'
+        confirmPassword: 'password1'
       })
       .end((err, res) => {
         expect (res).to.have.status(422);
@@ -86,7 +86,7 @@ describe('POST /api/v1/auth/signup', () => {
         name: '',
         email: 'Ajala@banka.com',
         password: 'password1',
-        confirm_password: 'password1'
+        confirmPassword: 'password1'
       })
       .end((err, res) => {
         expect (res).to.have.status(422);
@@ -118,7 +118,7 @@ describe('POST /api/v1/auth/signup', () => {
         name: 'Swall',
         email: 'swall@gmail.com',
         password: '',
-        confirm_password: ''
+        confirmPassword: ''
       })
       .end((err, res) => {
         expect (res).to.have.status(422);
@@ -150,7 +150,7 @@ describe('POST /api/v1/auth/signup', () => {
         name: 'Swall',
         email: 'swall.gmail.com',
         password: 'password1',
-        confirm_password: 'password2'
+        confirmPassword: 'password2'
       })
       .end((err, res) => {
         expect (res).to.have.status(422);
@@ -166,7 +166,7 @@ describe('POST /api/v1/auth/signup', () => {
         name: 'Swall',
         email: 'swall.gmail.com',
         password: 'password1',
-        confirm_password: 'password1'
+        confirmPassword: 'password1'
       })
       .end((err, res) => {
         expect (res).to.have.status(201);
