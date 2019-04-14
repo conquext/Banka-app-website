@@ -5,7 +5,7 @@ import { config } from 'dotenv';
 config();
 const secret = process.env.JWT_SECRET;
 
-class auth {
+class Auth {
    static generateToken(user) {
         const jwtToken = jwt.sign({ user }, secret, { expiresIn: 86400 });
         return jwtToken;
@@ -33,5 +33,5 @@ class auth {
   }
 }
 
-auth = new auth();
+auth = new Auth();
 export default auth;

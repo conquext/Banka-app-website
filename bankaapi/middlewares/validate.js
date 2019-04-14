@@ -1,11 +1,9 @@
-import db from '../db';
-import { body, validationResult } from 'express-validator/check';
+import { db } from '../db/db';
+import auth  from '../middlewares/auth';
 
 const { users, accounts } = db;
-import { auth } from '../middlewares';
 
-
-class validate {
+class Validate {
 	static validationError(errors) {
 		const errorCode = errors.map(error => error.msg);
 		return err;
@@ -99,5 +97,5 @@ class validate {
 	}
 }
 
-validate = new validate();
+validate = new Validate();
 export default validate;

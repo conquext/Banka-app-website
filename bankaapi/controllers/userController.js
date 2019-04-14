@@ -1,5 +1,5 @@
-import db from '../db';
-import { User } from '../models/user'
+import { db } from '../db/db';
+import User from '../models/user'
 import { config } from 'dotenv';
 import jwt from 'jsonwebtoken';
 
@@ -9,7 +9,7 @@ const secret = process.env.JWT_SECRET;
 
 const { users } = db;
 
-class userController {
+class UserController {
   //Login a user
   static login(req, res){
     try{
@@ -19,7 +19,7 @@ class userController {
           if(users[i].email == email){
             return users[i];
           }
-          return null;
+          return false;
         }
       }
       if (!registeredUser) {
@@ -83,7 +83,7 @@ class userController {
 
         users.push(newUser);
 
-        const jwtToken = jwt.sign({ user: registeredUser }, secret, { expiresIn: 86400 });
+        const jwtToken = jwt.sign({ user: newUser }, secret, { expiresIn: 86400 });
 
         const data = {
           id: newId,
@@ -119,7 +119,7 @@ class userController {
               });
         }
         return res.status(404).json({
-            success: 'fail',
+            success: 'false',
             error: 'No user found',
             });    
     }
@@ -146,7 +146,7 @@ class userController {
             }
             else {
                 return res.status(404).json({
-                  success: 'fail',
+                  success: 'false',
                   message: 'Not found',
                 });
             }
@@ -266,5 +266,5 @@ class userController {
 }
 
 
-userController = new userController;
+userController = new UserController;
 export default userController;

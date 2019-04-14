@@ -1,4 +1,4 @@
-class authorize {
+class Authorize {
 	static authUser(req, res, next){
 		if( !req.data.type.user ){
 			return res.status(403).json({
@@ -35,7 +35,24 @@ class authorize {
 		}
 		next();
 	}
+	static authSpecial(req, res, next){
+		if(req.data.type.user){
+			if (req.data.id !== req.query.id){
+				return res.status(403).json({
+					success: 'false',
+					error: 'Unathorized'
+				});
+			}
+		}
+		if( !req.data.type.cashier || !req.data.type.admin){
+			return res.status(403).json({
+				success: 'false',
+				error: 'Unathorized'
+			});
+		}
+		next();
+	}
 }
 
-authorize = new authorize();
+authorize = new Authorize();
 export default authorize;

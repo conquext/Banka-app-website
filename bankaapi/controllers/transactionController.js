@@ -1,11 +1,10 @@
-import db from '../db';
-import { Account } from '../models/account';
-import { Transaction } from '../models/transaction';
+import { db } from '../db/db';
+import Transaction from '../models/transaction';
 
 
 const { accounts, transactions } = db;
 
-class transactionController {
+class TransactionController {
     //creates a credit or debit transaction
     static newTransaction(req, res) {
     try {
@@ -50,10 +49,10 @@ class transactionController {
         this_transaction.newBalance = accountFound.balance;
         transactions.push(this_transaction);
         
-        return res.status(201).json({
+        return res.status(200).json({
             success: 'true',
-            message: `Account is { type + 'ed' } with { amount } Naira`,
-            Account: accountFound
+            message: `Account is ${ type }'ed' with ${ amount } Naira`,
+            TransactionFound: this_transaction
         });
     }
     catch (error) {
@@ -66,17 +65,49 @@ class transactionController {
     //get all transactions
     static getAllTransactions(req, res) {
         try{
-            if (transactions) {
-                return res.status(201).json({
+            if (req.body || req.params || req.query.id) {
+                const id = parseInt(req.params.id) || req.query.id;
+                const { accountNumber } = req.query;
+                let transactionsFound = [];
+                transactions.map((transaction) => {
+                    if (transaction.id === id || transaction.accountNumber === accountNumber) {
+                        transactionsFound.push(transaction);
+                    }
+                });
+                if (transactionsFound.length = 1) {
+                    return res.status(201).json({
+                    success: 'true',
+                    message: 'Transaction retrieved successfully',
+                    TransactionFound: transactionsFound
+                    });
+                }
+                if (transactionsFound.length > 1) {
+                    return res.status(201).json({
                     success: 'true',
                     message: 'Transactions retrieved successfully',
-                    Transactions: [...transactions]
+                    TransactionFound: transactionsFound
                     });
+                }
+                else {
+                    return res.status(404).json({
+                        success: 'false',
+                        message: 'No transaction found'
+                    });
+                }
             }
-            return res.status(404).json({
-                success: 'fail',
-                error: 'No transaction found',
-                });      
+            else {
+                if (transactions) {
+                    return res.status(201).json({
+                        success: 'true',
+                        message: 'Transactions retrieved successfully',
+                        TransactionFound: [...transactions]
+                        });
+                }
+                return res.status(404).json({
+                    success: 'false',
+                    error: 'No transaction found',
+                    }); 
+            }     
         }
         catch (error) {
             return res.status(500).json({
@@ -88,24 +119,26 @@ class transactionController {
     //get a specific transaction
     static getTransaction(req, res) {
         try{
-            const id = parseInt(req.params.id);
-            let result = '';
-            for(var i = 0; i < transactions.length; i++){
-                if (id === transactions[i].id) {
-                    result = transaction[i];
-                    return res.status(201).json({
-                        success: 'true',
-                        message: 'Transactions retrieved successfully ',
-                        Account: result
-                        });
+            const id = parseInt(req.params.id) || parseInt(req.query.id);
+            let transactionFound = 'false';
+            transactions.map((transaction) => {
+                if (transaction.id === id ) {
+                    transactionFound = transaction;
                 }
-                else {
-                    return res.status(404).json({
-                        success: 'fail',
-                        message: 'Not found',
-                        Account: result
-                        });
-                }
+            });
+            if (transactionFound) {
+                return res.status(201).json({
+                  success: 'true',
+                  message: 'Transaction retrieved successfully',
+                  TransactionFound: transactionFound
+                });
+              }
+            else {
+                return res.status(404).json({
+                    success: 'false',
+                    message: 'Not found',
+                    TransactionFound: transactionFound
+                    });
             }
         }
         catch (error) {
@@ -116,3 +149,6 @@ class transactionController {
         }
     }
 }
+
+const transactionController = new TransactionController();
+export default transactionController;
