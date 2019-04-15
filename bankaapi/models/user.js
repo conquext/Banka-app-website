@@ -1,93 +1,115 @@
-class User{
-  constructor(id = '', name, email, password, dob = "", state = "", phoneNumber = ""){
-      this.id = id;
-      this.name = name;
-      this.email = email;
-      this.password = password;
-      this.dob = dob;
-      this.state = state;
-      this.country = country;
-      this.phoneNumber = phoneNumber;
-      this.accountNumber = '';
-      this.loggedIn = false;
-      this.type = 'user';
-      this.balance = null;
-      this.createdAt = new Date();
-      this.lastLoggedInAt = null
+export default class User {
+  constructor({
+    id, name, email, password, dob, state, phoneNumber, country,
+  }) {
+    this.id = id || '';
+    this.name = name;
+    this.email = email;
+    this.password = password;
+    this.dob = dob || '';
+    this.state = state || '';
+    this.country = country || '';
+    this.phoneNumber = phoneNumber || '';
+    this.accountNumber = '';
+    this.loggedIn = false;
+    this.type = 'user';
+    this.balance = null;
+    this.createdAt = new Date();
+    this.lastLoggedInAt = null;
   }
-  isLoggedIn(){
-      return this.loggedIn;
+
+  isLoggedIn() {
+    return this.loggedIn;
   }
+
   getLastLoggedInAt() {
-      return this.lastLoggedInAt;
+    return this.lastLoggedInAt;
   }
+
   logIn() {
-      this.lastLoggedInAt = new Date();
-      this.loggedIn = true;
+    this.lastLoggedInAt = new Date();
+    this.loggedIn = true;
   }
+
   logOut() {
-      this.loggedIn = false;
+    this.loggedIn = false;
   }
+
   getName() {
-      return this.name;
+    return this.name;
   }
+
   setName(name) {
-      this.name = name;
+    this.name = name;
   }
+
   getEmail() {
-      return this.email;
+    return this.email;
   }
-  setEmail(email){
-      this.email = email;
+
+  setEmail(email) {
+    this.email = email;
   }
-  getUserId(){
-      return this.id;
+
+  getUserId() {
+    return this.id;
   }
-  getAccountNumber(){
-      return this.accountNumber;
+
+  getAccountNumber() {
+    return this.accountNumber;
   }
-  getType(){
-      return this.type;
+
+  getType() {
+    return this.type;
   }
+
   getDob() {
-      return this.dob;
+    return this.dob;
   }
-  setDob(dob){
-      this.dob = dob;
+
+  setDob(dob) {
+    this.dob = dob;
   }
-  setUpdatedAt(){
-      this.updatedAt = new Date;
+
+  setUpdatedAt() {
+    this.updatedAt = new Date();
   }
-  isAdmin(){
-      return this.type == 'admin';
+
+  isAdmin() {
+    return this.type == 'admin';
   }
 }
 
-class Cashier extends User{
+class Cashier extends User {
   constructor(name) {
     super(name);
     this.type = 'cashier';
   }
+
   canDebit(user) {
     return true;
   }
+
   canCredit(user) {
     return true;
   }
 }
 
-class Admin extends Cashier{
+class Admin extends Cashier {
   constructor(name) {
     super(name);
     this.type = 'admin';
   }
+
   canDelete(user) {
     return true;
   }
-  canDeactivate(account){
+
+  canDeactivate(account) {
     return true;
   }
-  canActivate(account){
+
+  canActivate(account) {
     return true;
   }
 }
@@ -105,5 +127,3 @@ const user = [
 }
 ];
 */
-
-export default { User };

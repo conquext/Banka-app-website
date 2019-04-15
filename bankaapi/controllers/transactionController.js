@@ -1,118 +1,145 @@
-import db from '../db';
-import { Account } from '../models/account';
-import { Transaction } from '../models/transaction';
+import { accounts, transactions } from '../db/db';
 
+import Transaction from '../models/transaction';
 
-const { accounts, transactions } = db;
-
-class transactionController {
-    //creates a credit or debit transaction
-    static newTransaction(req, res) {
+export default class TransactionController {
+  // creates a credit or debit transaction
+  static newTransaction(req, res) {
     try {
-        const { accountNumber, amount, type } = req.body;
-        const newId = transactions[transactions.length - 1].id + 1;
-        let this_transaction = new Transaction(newId, accountNumber, amount, type);
-        
-        //check if account exists
-        let accountFound = '';
-        accounts.map((account) => {
-            if (account.accountNumber === accountNumber) {
-                accountFound = account;
-            }
+      const { accountNumber, type } = req.body;
+      let { amount } = req.body;
+      const newId = transactions[transactions.length - 1].id + 1;
+      const this_transaction = new Transaction(newId, accountNumber, amount, type);
+
+      // check if account exists
+      let accountFound = '';
+      accounts.map((account) => {
+        if (account.accountNumber === accountNumber) {
+          accountFound = account;
+        }
+      });
+      if (!accountFound) {
+        return res.status(404).json({
+          success: 'false',
+          message: 'Account not found',
         });
-        if (!accountFound) {
-            return res.status(404).json({
-                success: 'false',
-                message: 'Account not found'
-            });
+      }
+      if (type === 'debit') {
+        if (amount && accountFound.balance > amount) {
+          amount = (-1 * amount);
+        } else {
+          return res.status(422).json({
+            success: 'false',
+            error: 'Insufficient balance',
+          });
         }
-        if (type === 'debit') {
-            if (amount && accountFound.balance > amount) {
-                amount = (-1 * amount);
-            } 
-            else {
-                return res.status(422).json({
-                    success: 'false',
-                    error: 'Insufficient balance'
-                });
-            }
+      }
+      if (type === 'credit') {
+        if (!amount || req.body.amount <= 0) {
+          return res.status(404).json({
+            success: 'false',
+            error: 'Provide amount greater than 0',
+          });
         }
-        if (type === 'credit') {
-            if (!amount || req.body.amount <= 0) {
-                return res.status(404).json({
-                    success: 'false',
-                    error: 'Provide amount greater than 0'
-                });
-            }
-        }
-        this_transaction.oldBalance = accountFound.balance;
-        accountFound.balance += amount;
-        this_transaction.newBalance = accountFound.balance;
-        transactions.push(this_transaction);
-        
-        return res.status(201).json({
+      }
+      this_transaction.oldBalance = accountFound.balance;
+      accountFound.balance += amount;
+      this_transaction.newBalance = accountFound.balance;
+      transactions.push(this_transaction);
+
+      return res.status(200).json({
+        success: 'true',
+        message: `Account is ${type}'ed' with ${amount} Naira`,
+        TransactionFound: this_transaction,
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: 'false',
+        error: 'Something went wrong. Try again.',
+      });
+    }
+  }
+
+  // get all transactions
+  static getAllTransactions(req, res) {
+    try {
+      if (req.body || req.params || req.query.id) {
+        const id = parseInt(req.params.id) || req.query.id;
+        const { accountNumber } = req.query;
+        const transactionsFound = [];
+        transactions.map((transaction) => {
+          if (transaction.id === id || transaction.accountNumber === accountNumber) {
+            transactionsFound.push(transaction);
+          }
+        });
+        if (transactionsFound.length = 1) {
+          return res.status(201).json({
             success: 'true',
-            message: `Account is { type + 'ed' } with { amount } Naira`,
-            Account: accountFound
+            message: 'Transaction retrieved successfully',
+            TransactionFound: transactionsFound,
+          });
+        }
+        if (transactionsFound.length > 1) {
+          return res.status(201).json({
+            success: 'true',
+            message: 'Transactions retrieved successfully',
+            TransactionFound: transactionsFound,
+          });
+        }
+
+        return res.status(404).json({
+          success: 'false',
+          message: 'No transaction found',
         });
-    }
-    catch (error) {
-        res.status(500).json({
-            success: 'false',
-            error: 'Something went wrong. Try again.'
+      }
+
+      if (transactions) {
+        return res.status(201).json({
+          success: 'true',
+          message: 'Transactions retrieved successfully',
+          TransactionFound: [...transactions],
         });
+      }
+      return res.status(404).json({
+        success: 'false',
+        error: 'No transaction found',
+      });
+    } catch (error) {
+      return res.status(500).json({
+        success: 'false',
+        message: 'Something went wrong',
+      });
     }
-    } 
-    //get all transactions
-    static getAllTransactions(req, res) {
-        try{
-            if (transactions) {
-                return res.status(201).json({
-                    success: 'true',
-                    message: 'Transactions retrieved successfully',
-                    Transactions: [...transactions]
-                    });
-            }
-            return res.status(404).json({
-                success: 'fail',
-                error: 'No transaction found',
-                });      
+  }
+
+  // get a specific transaction
+  static getTransaction(req, res) {
+    try {
+      const id = parseInt(req.params.id) || parseInt(req.query.id);
+      let transactionFound = 'false';
+      transactions.map((transaction) => {
+        if (transaction.id === id) {
+          transactionFound = transaction;
         }
-        catch (error) {
-            return res.status(500).json({
-            success: 'false',
-            message: 'Something went wrong'
-            });
-        }
+      });
+      if (transactionFound) {
+        return res.status(201).json({
+          success: 'true',
+          message: 'Transaction retrieved successfully',
+          TransactionFound: transactionFound,
+        });
+      }
+
+      return res.status(404).json({
+        success: 'false',
+        message: 'Not found',
+        TransactionFound: transactionFound,
+      });
+    } catch (error) {
+      return res.status(500).json({
+        success: 'false',
+        message: 'Something went wrong',
+      });
     }
-    //get a specific transaction
-    static getTransaction(req, res) {
-        try{
-            const id = parseInt(req.params.id);
-            let result = '';
-            for(var i = 0; i < transactions.length; i++){
-                if (id === transactions[i].id) {
-                    result = transaction[i];
-                    return res.status(201).json({
-                        success: 'true',
-                        message: 'Transactions retrieved successfully ',
-                        Account: result
-                        });
-                }
-                else {
-                    return res.status(404).json({
-                        success: 'fail',
-                        message: 'Not found',
-                        Account: result
-                        });
-                }
-            }
-        }
-        catch (error) {
-            return res.status(500).json({
-                success: 'false',
-                message: 'Something went wrong'
-                });
-        }
-    }
+  }
 }

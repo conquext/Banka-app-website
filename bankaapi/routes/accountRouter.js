@@ -1,16 +1,26 @@
+import PermissionsMiddleware from '../middlewares/permissionsMiddleware';
 import { Router } from 'express';
-import { authorize } from '../middlewares/';
-import { accountController } from '../controllers/accountController';
+import accountController from '../controllers/accountController';
+import authMiddleware from '../middlewares/authMiddleware';
+import permissionsMiddleware from '../middlewares/permissionsMiddleware';
+import validateMiddleware from '../middlewares/validateMiddleware';
 
 const router = Router();
 
-const { createAccount, getAllAccounts, getAccount, updateAccount, deleteAccount } = accountController;
-const { authUser, authCashier, authAdmin, authStaff } = authorize;
+const {
+  createAccount, getAllAccounts, getAccount, updateAccount, deleteAccount,
+} = accountController;
+const {
+  authUser, authAdminOrIsUser, authAdmin, authStaff,
+} = PermissionsMiddleware;
+const { accountCheck } = validateMiddleware;
+const { authenticateUser } = authMiddleware;
 
-router.post('/accounts', authUser, validate.accountCheck, createAccount);
-router.get('/accounts', authStaff, getAllAccounts);
-router.get('/accounts/:id', authStaff, getAccount);
-router.patch('/accounts/:id', authAdmin, updateAccount);
-router.delete('/accounts/:id', authAdmin, deleteAccount);
+router.use(authenticateUser);
+router.post('', authUser, accountCheck, createAccount);
+router.get('', authStaff, getAllAccounts);
+router.get('/:id', authAdminOrIsUser, getAccount);
+router.patch('/:id', authAdmin, updateAccount);
+router.delete('/:id', authAdmin, deleteAccount);
 
 export default router;

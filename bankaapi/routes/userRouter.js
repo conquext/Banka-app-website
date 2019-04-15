@@ -1,17 +1,24 @@
 import { Router } from 'express';
-import { authorize } from '../middlewares/';
-import { userController } from '../controllers/userController';
+import authMiddleware from '../middlewares/authMiddleware';
+import permissionsMiddleware from '../middlewares/permissionsMiddleware';
+import userController from '../controllers/userController';
+import validateMiddleware from '../middlewares/validateMiddleware';
 
 const router = Router();
 
-const { getAllUsers, getUser, updateUser, deleteUser } = userController;
-const { authAdmin, authStaff } = authorize;
+const {
+  getAllUsers, getUser, updateUser, deleteUser, promoteUser,
+} = userController;
+const { authAdmin, authStaff, authAdminOrIsUser } = permissionsMiddleware;
+const { authenticateUser } = authMiddleware;
+const { validateUserUpdate } = validateMiddleware;
 
-router.get('/users', authStaff, getAllUsers);
-router.get('/users/:id', authStaff, getUser);
-router.put('/users', updateUser);
-router.patch('/users/:id', authAdmin, promoteUser);
-router.delete('/users/:id', authAdmin, deleteUser);
+router.use(authenticateUser);
+router.get('/', authStaff, getAllUsers);
+router.get('/:id', authStaff, getUser);
+router.put('/:id', validateUserUpdate, authAdminOrIsUser, updateUser);
+router.patch('/:id', authAdmin, promoteUser);
+router.delete('/:id', authAdmin, deleteUser);
 
 
 export default router;
