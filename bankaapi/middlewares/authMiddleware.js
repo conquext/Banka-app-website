@@ -1,12 +1,13 @@
 import jwt from 'jsonwebtoken';
 import * as config from '../config';
+import { users } from '../db/db';
 
 
 export default class AuthMiddleware {
-  static generateToken(user) {
-    const jwtToken = jwt.sign({ user }, secret, { expiresIn: 86400 });
-    return jwtToken;
-  }
+  // static generateToken(user) {
+  //   const jwtToken = jwt.sign({ user }, secret, { expiresIn: 86400 });
+  //   return jwtToken;
+  // }
 
   static errorResponse(res, statusCode, error) {
     return res.status(statusCode).send({
@@ -20,7 +21,7 @@ export default class AuthMiddleware {
     return res.status(statusCode).send({
       success: 'true',
       status: statusCode,
-      message: succes,
+      message: success,
     });
   }
 
@@ -30,17 +31,26 @@ export default class AuthMiddleware {
   }
 
   static authenticateUser(req, res, next) {
-    if (!req.headers.authorization) {
+    const currentToken = req.headers.authorization;
+    if (!currentToken) {
       return res.status(401).json({
         success: 'false',
         error: 'Unathorized. Token not found',
       });
     }
+
+    // let userFound = ''; 
+    // users.map((user) => {
+    //   if (currentToken === user.token) {
+    //     userFound === user; 
+    //   }
+    // });
+
     const decoded = jwt.decode(req.headers.authorization, { secret: config.secret });
     if (!decoded) {
       return res.status(401).json({
         success: 'false',
-        error: 'Unathorized. Token invalid',
+        error: 'Unathorized. Token invalid. Please login',
       });
     }
     req.data = {

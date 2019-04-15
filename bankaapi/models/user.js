@@ -14,6 +14,7 @@ export default class User {
     this.loggedIn = false;
     this.type = 'user';
     this.balance = null;
+    this.token = '',
     this.createdAt = new Date();
     this.lastLoggedInAt = null;
   }
@@ -77,6 +78,9 @@ export default class User {
 
   isAdmin() {
     return this.type == 'admin';
+  }
+  getToken() {
+    return this.token;
   }
 }
 

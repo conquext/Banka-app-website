@@ -22,14 +22,17 @@ export default class UserController {
           error: 'Wrong password',
         });
       }
-
       const jwtToken = jwt.sign({ user }, config.secret, { expiresIn: 86400 });
+      user.token = jwtToken;
+      user.lastLoggedInAt = new Date();
+      user.loggedIn = true;
 
       const data = {
         id: user.id,
         email: user.email,
         type: user.type,
-        token: jwtToken,
+        token: user.token,
+        login: user.loggedIn,
       };
 
       return res.status(200).json({
@@ -71,16 +74,24 @@ export default class UserController {
           id: newId, name, email, password,
         });
 
+        const jwtToken = jwt.sign({ user: newUser }, config.secret, { expiresIn: 86400 });
+        newUser.token = jwtToken;
+        newUser.logIn();
         users.push(newUser);
 
-        const jwtToken = jwt.sign({ user: newUser }, config.secret, { expiresIn: 86400 });
+        const userInDb = users.map((user) => {
+          if( user.id === newUser.id ){
+                  return user;
+                }
+        });
 
         const data = {
           id: newId,
           name: newUser.name,
           email: newUser.email,
           type: newUser.type,
-          token: jwtToken,
+          token: newUser.getToken(),
+          login: userInDb.loggedIn,
         };
 
         return res.status(201).json({
@@ -88,6 +99,7 @@ export default class UserController {
           message: 'User is registered successfully',
           token: `Bearer ${jwtToken}`,
           user: data,
+          login: newUser.loggedIn,
         });
       }
     } catch (error) {

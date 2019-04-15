@@ -8,13 +8,13 @@ export default class AccountController {
     try {
       const newId = accounts[accounts.length - 1].id + 1;
       const newAccountNumber = accounts[accounts.length - 1].accountNumber + 1;
-      const { userId, type, bank } = req.body;
-      console.log('newaccountnumber', newAccountNumber, 'id', newID);
-      const user = UserHelper.findUserById(id) || UserHelper.findUserByEmail(email);
+      const { type, bank } = req.body;
+      
+      const user = UserHelper.findUserById(req.data.id);
       if (user) {
         const newAccount = new Account(
           {
-            id: newId, accountNumber: newAccountNumber, email, owner: user, bank
+            id: newId, accountNumber: newAccountNumber, type: type, owner: user, bank
           });
         accounts.push(newAccount);
 

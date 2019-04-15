@@ -13,7 +13,6 @@ export default class ValidateMiddleware {
     req.checkBody('email').isLength({ min: 1 }).withMessage('Email is required');
   	req.checkBody('email').isEmail().withMessage('Email is invalid');
     req.checkBody('password').isLength({ min: 1 }).withMessage('Password is required');
-    req.checkBody('confirmPassword').isLength({ min: 1 }).withMessage('Confirm Password');
 
     const errors = req.validationErrors();
     if (errors) {

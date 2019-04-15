@@ -7,19 +7,15 @@ import validateMiddleware from '../middlewares/validateMiddleware';
 
 const router = Router();
 
-const {
-  createAccount, getAllAccounts, getAccount, updateAccount, deleteAccount,
-} = accountController;
-const {
-  authUser, authAdminOrIsUser, authAdmin, authStaff,
-} = PermissionsMiddleware;
+const { createAccount, getAllAccounts, getAccount, updateAccount, deleteAccount } = accountController;
+const { authUser, authAdminOrItsUser, authAdmin, authStaff } = PermissionsMiddleware;
 const { accountCheck } = validateMiddleware;
 const { authenticateUser } = authMiddleware;
 
 router.use(authenticateUser);
 router.post('', authUser, accountCheck, createAccount);
 router.get('', authStaff, getAllAccounts);
-router.get('/:id', authAdminOrIsUser, getAccount);
+router.get('/:id', authAdminOrItsUser, getAccount);
 router.patch('/:id', authAdmin, updateAccount);
 router.delete('/:id', authAdmin, deleteAccount);
 
