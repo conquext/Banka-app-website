@@ -1,5 +1,4 @@
 import * as config from '../config';
-
 import User from '../models/user';
 import UserHelper from '../helpers/userHelper';
 import jwt from 'jsonwebtoken';
@@ -74,7 +73,7 @@ export default class UserController {
 
         users.push(newUser);
 
-        const jwtToken = jwt.sign({ user: newUser }, secret, { expiresIn: 86400 });
+        const jwtToken = jwt.sign({ user: newUser }, config.secret, { expiresIn: 86400 });
 
         const data = {
           id: newId,
