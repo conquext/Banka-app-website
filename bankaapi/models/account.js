@@ -1,11 +1,13 @@
 class Account {
-  constructor(id, type = '', accountNumber = '', user = {}, bank = '') {
-    this.id = id;
-    this.accountNumber = accountNumber;
+  constructor({
+    id, type, accountNumber, user, bank,
+  }) {
+    this.id = id || '';
+    this.accountNumber = accountNumber || '';
     this.createdOn = new Date().toLocaleString();
-    this.owner = user;
-    this.type = type;
-    this.bank = bank;
+    this.owner = user || {};
+    this.type = type || 'savings';
+    this.bank = bank || '';
     this.status = 'active';
     this.balance = 0;
   }

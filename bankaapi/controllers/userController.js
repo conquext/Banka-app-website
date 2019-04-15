@@ -1,8 +1,8 @@
-import jwt from 'jsonwebtoken';
 import * as config from '../config';
 
 import User from '../models/user';
 import UserHelper from '../helpers/userHelper';
+import jwt from 'jsonwebtoken';
 import { users } from '../db/db';
 
 export default class UserController {
@@ -153,7 +153,6 @@ export default class UserController {
       const id = parseInt(req.params.id);
       const email = req.query.email || '';
       const user = UserHelper.findUserById(id) || UserHelper.findUserByEmail(email);
-      console.log(user);
       if (!user) {
         return res.status(404).json({
           success: 'false',
@@ -169,7 +168,6 @@ export default class UserController {
         user,
       });
     } catch (error) {
-      console.log(error);
       return res.status(500).json({
         success: 'false',
         message: 'Something went wrong',
@@ -181,31 +179,24 @@ export default class UserController {
   static promoteUser(req, res) {
     try {
       const id = parseInt(req.params.id);
-      const { email } = req.body || '';
-      let userFound;
-      let userIndex;
-      users.map((user, index) => {
-        if (user.id === id || account.email === email) {
-          userFound = user;
-          userIndex = index;
-        }
-      });
-      if (!userFound) {
+      const email = req.query.email || '';
+      const user = UserHelper.findUserById(id) || UserHelper.findUserByEmail(email);
+      if (!user) {
         return res.status(404).json({
           success: 'false',
           message: 'User not found',
         });
       }
 
-      const { type } = req.body;
-      userFound.type = type;
-      if (type === 'admin') {
-        userFound.isAdmin = true;
+      const type  = req.body.type || req.query.type || userFound.type || 'user';
+      user.type = type;
+      if (type && type === 'admin') {
+        user.isAdmin = true;
       }
       return res.status(200).json({
         success: 'true',
         message: 'User promoted successfuly',
-        user: userFound,
+        user: user,
       });
     } catch (error) {
       return res.status(500).json({
@@ -219,11 +210,11 @@ export default class UserController {
   static deleteUser(req, res) {
     try {
       const id = parseInt(req.params.id);
-      const { email } = req.body || '';
-      let userFound;
-      let userIndex;
+      const email = req.body.email || '';
+      let userFound = null;
+      let userIndex = '';
       users.map((user, index) => {
-        if (user.id === id || account.email === email) {
+        if (user.id === id || user.email === email) {
           userFound = user;
           userIndex = index;
         }
@@ -238,8 +229,10 @@ export default class UserController {
       return res.status(200).json({
         success: 'true',
         message: 'User deleted successfuly',
+        DeletedUser: userFound
       });
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         success: 'false',
         message: 'Something went wrong',

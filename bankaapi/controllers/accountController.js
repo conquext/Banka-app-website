@@ -9,15 +9,13 @@ export default class AccountController {
       const newId = accounts[accounts.length - 1].id + 1;
       const newAccountNumber = accounts[accounts.length - 1].accountNumber + 1;
       const { userId, type, bank } = req.body;
-
-      let userFound = 'false';
-      users.map((user) => {
-        if (user.Id === userId) {
-          userFound = user;
-        }
-      });
-      if (userFound) {
-        const newAccount = new Account(newId, newAccountNumber, userFound, bank);
+      console.log('newaccountnumber', newAccountNumber, 'id', newID);
+      const user = UserHelper.findUserById(id) || UserHelper.findUserByEmail(email);
+      if (user) {
+        const newAccount = new Account(
+          {
+            id: newId, accountNumber: newAccountNumber, email, owner: user, bank
+          });
         accounts.push(newAccount);
 
         return res.status(201).json({
@@ -46,8 +44,10 @@ export default class AccountController {
         const id = parseInt(req.params.id) || parseInt(req.query.id);
         const { email, accountNumber } = req.query;
         const queryString = email || id || accountNumber;
+        const user = UserHelper.findUserById(id) || UserHelper.findUserByEmail(email);
         const theQuery = Object.keys(req.query)[0];
         const accountsFound = [];
+
         accounts.map((account) => {
           if (account.id === id || queryString === (account.email || account.id || account.accountNumber)/* || queryString === ${account.${theQuery}} */) {
             accountsFound.push(account);
