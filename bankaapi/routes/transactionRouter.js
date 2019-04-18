@@ -7,12 +7,13 @@ import validateMiddleware from '../middlewares/validateMiddleware';
 const router = Router();
 
 const { newTransaction, getAllTransactions, getTransaction } = transactionController;
-const { authCashier, authStaff, authAdminOrItsUser } = authorizeMiddleware;
+const { authCashier, authStaff, authStaffOrItsAccountOwner, authAdminOrItsUser } = authorizeMiddleware;
 const { authenticateUser } = authMiddleware;
+const { transactionCheck } = validateMiddleware;
 
 router.use(authenticateUser);
-router.post('/transactions', authCashier, validateMiddleware.transactionCheck, newTransaction);
-router.get('/transactions', authStaff, getAllTransactions);
-router.get('/transactions/:id', authAdminOrItsUser, getTransaction);
+router.post('', authCashier, transactionCheck, newTransaction);
+router.get('', authStaffOrItsAccountOwner, getAllTransactions);
+router.get('/:transactionId', authStaff, getTransaction);
 
 export default router;

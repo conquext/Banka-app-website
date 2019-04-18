@@ -1,6 +1,6 @@
 class Transaction {
-  constructor(id, accountNumber, amount = '0', type, cashier = '') {
-    this.id = id;
+  constructor(transactionId, accountNumber, amount = '0', type, cashier = '') {
+    this.transactionId = transactionId;
     this.accountNumber = accountNumber;
     this.amount = amount;
     this.type = type;

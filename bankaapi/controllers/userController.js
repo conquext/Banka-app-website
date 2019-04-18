@@ -28,7 +28,7 @@ export default class UserController {
       user.loggedIn = true;
 
       const data = {
-        id: user.id,
+        userId: user.userId,
         email: user.email,
         type: user.type,
         token: user.token,
@@ -69,9 +69,9 @@ export default class UserController {
         });
       }
       if (!registeredUser) {
-        const newId = users[users.length - 1].id + 1;
+        const newUserId = users[users.length - 1].userId + 1;
         const newUser = new User({
-          id: newId, name, email, password,
+          userId: newUserId, name, email, password,
         });
 
         const jwtToken = jwt.sign({ user: newUser }, config.secret, { expiresIn: 86400 });
@@ -80,13 +80,13 @@ export default class UserController {
         users.push(newUser);
 
         const userInDb = users.map((user) => {
-          if( user.id === newUser.id ){
+          if( user.userId === newUser.userId ){
                   return user;
                 }
         });
 
         const data = {
-          id: newId,
+          userId: newUserId,
           name: newUser.name,
           email: newUser.email,
           type: newUser.type,
@@ -135,9 +135,9 @@ export default class UserController {
   // get a specific user
   static getUser(req, res) {
     try {
-      const id = parseInt(req.params.id);
+      const userId = parseInt(req.params.userId, 10);
       const result = '';
-      const user = UserHelper.findUserById(id);
+      const user = UserHelper.findUserById(userId);
       if (user) {
         return res.status(200).json({
           success: 'true',
@@ -161,7 +161,7 @@ export default class UserController {
   // update a user profile
   static updateUser(req, res) {
     try {
-      const id = parseInt(req.params.id);
+      const userId = parseInt(req.params.userId, 10);
       const email = req.query.email || '';
       const user = UserHelper.findUserById(id) || UserHelper.findUserByEmail(email);
       if (!user) {
@@ -189,9 +189,9 @@ export default class UserController {
   // promote a specific user or staff
   static promoteUser(req, res) {
     try {
-      const id = parseInt(req.params.id);
+      const userId = parseInt(req.params.userId, 10);
       const email = req.query.email || '';
-      const user = UserHelper.findUserById(id) || UserHelper.findUserByEmail(email);
+      const user = UserHelper.findUserById(userId) || UserHelper.findUserByEmail(email);
       if (!user) {
         return res.status(404).json({
           success: 'false',
@@ -220,12 +220,12 @@ export default class UserController {
   // delete a user
   static deleteUser(req, res) {
     try {
-      const id = parseInt(req.params.id);
+      const userId = parseInt(req.params.userId, 10);
       const email = req.body.email || '';
       let userFound = null;
       let userIndex = '';
       users.map((user, index) => {
-        if (user.id === id || user.email === email) {
+        if (user.userId === userId || user.email === email) {
           userFound = user;
           userIndex = index;
         }

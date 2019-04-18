@@ -8,7 +8,7 @@ export default class TransactionController {
     try {
       const { accountNumber, type } = req.body;
       let { amount } = req.body;
-      const newId = transactions[transactions.length - 1].id + 1;
+      const newId = transactions[transactions.length - 1].transactionId + 1;
       const this_transaction = new Transaction(newId, accountNumber, amount, type);
 
       // check if account exists
@@ -63,16 +63,38 @@ export default class TransactionController {
   // get all transactions
   static getAllTransactions(req, res) {
     try {
-      if (req.body || req.params || req.query.id) {
-        const id = parseInt(req.params.id) || req.query.id;
-        const { accountNumber } = req.query;
-        const transactionsFound = [];
-        transactions.map((transaction) => {
-          if (transaction.id === id || transaction.accountNumber === accountNumber) {
-            transactionsFound.push(transaction);
+      if (req.body.transactionId || req.query.transactionId || req.query.accountNumber || req.body.accountNumber) {
+        const transactionId = req.query.transactionId || req.body.transactionId;
+        const accountNumber  = req.query.accountNumber || req.body.accountNumber;
+        let transactionsFound = [];
+
+        
+        if (!transactionId) {
+          if (accountNumber) {
+            transactions.map((transaction) => {
+            if (String(transaction.accountNumber) === String(accountNumber)) {
+              transactionsFound.push(transaction);
+            }
+            });
           }
-        });
-        if (transactionsFound.length = 1) {
+        }
+        if (!accountNumber) {
+            if (transactionId) {
+              transactions.map((transaction) => {
+              if (transaction.transactionId === transactionId) {
+                transactionsFound.push(transaction);
+              }
+              });
+            }
+        }
+        if (!transactionId){
+          if(!accountNumber){
+            transactions.forEach((transaction) => {
+              transactionsFound.push(transaction);
+            });
+          }
+        }
+        if (transactionsFound.length === 1) {
           return res.status(201).json({
             success: 'true',
             message: 'Transaction retrieved successfully',
@@ -115,10 +137,10 @@ export default class TransactionController {
   // get a specific transaction
   static getTransaction(req, res) {
     try {
-      const id = parseInt(req.params.id) || parseInt(req.query.id);
-      let transactionFound = 'false';
+      const { transactionId } = req.params;
+      let transactionFound = null;
       transactions.map((transaction) => {
-        if (transaction.id === id) {
+        if (transaction.transactionId === parseInt(transactionId, 10)) {
           transactionFound = transaction;
         }
       });

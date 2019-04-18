@@ -1,6 +1,6 @@
 export const users = [
   {
-    id: 1,
+    userId: 1,
     name: 'Name1',
     email: 'email1@email.com',
     password: 'password1',
@@ -15,7 +15,7 @@ export const users = [
     lastLoggedInAt: new Date(1, 1, 2019),
   },
   {
-    id: 2,
+    userId: 2,
     name: 'Name2',
     email: 'email2@email.com',
     password: 'password1',
@@ -30,7 +30,7 @@ export const users = [
     lastLoggedInAt: new Date(1, 2, 2019),
   },
   {
-    id: 3,
+    userId: 3,
     name: 'Name3',
     email: 'email3@email.com',
     password: 'password1',
@@ -45,7 +45,7 @@ export const users = [
     lastLoggedInAt: new Date(1, 3, 2019),
   },
   {
-    id: 4,
+    userId: 4,
     name: 'Name3',
     email: 'admin@email.com',
     password: 'password1',
@@ -59,44 +59,59 @@ export const users = [
     createdAt: new Date(1, 3, 2019),
     lastLoggedInAt: new Date(1, 3, 2019),
   },
+  {
+    userId: 5,
+    name: 'Namesix',
+    email: 'email6@email.com',
+    password: 'password6',
+    confirmPassword: 'password6',
+    dob: new Date(1, 3, 1993),
+    state: 'Lagos',
+    country: 'Nigeria',
+    phoneNumber: '080003',
+    loggedIn: false,
+    type: 'user',
+    createdAt: new Date(1, 3, 2019),
+    lastLoggedInAt: new Date(1, 3, 2019),
+  },
 ];
 
 export const accounts = [
   {
-    id: 1,
+    accountId: 1,
     accountNumber: 1000,
     createdOn: new Date(1, 1, 2019),
-    owner: 'Name1',
+    userId: 1,
     type: 'savings',
     bank: 'Bank of Andela',
     status: 'active',
     balance: 60,
   },
   {
-    id: 2,
+    accountId: 2,
     accountNumber: 1001,
     createdOn: new Date(1, 2, 2019),
-    owner: 'Name2',
+    userId: 2,
     type: 'savings',
     bank: 'Bank of Lagos',
     status: 'active',
     balance: 103,
   },
   {
-    id: 3,
+    accountId: 3,
     accountNumber: 1002,
     createdOn: new Date(1, 3, 2019),
-    owner: 'Name3',
+    userId: 'Name3',
     type: 'Current',
     bank: 'Bank of Banka',
     status: 'active',
     balance: 35,
   },
   {
-    id: 4,
+    accountId: 4,
     accountNumber: 1003,
     createdOn: new Date(1, 3, 2019),
-    owner: 'Name1',
+    userId: 1,
     type: 'Current',
     bank: 'Bank of Lagos',
     status: 'inactive',
@@ -106,7 +121,7 @@ export const accounts = [
 
 export const transactions = [
   {
-    id: 1,
+    transactionId: 1,
     createdOn: new Date(1, 1, 2019),
     transactionType: 'credit',
     type: 'savings',
@@ -116,7 +131,7 @@ export const transactions = [
     newBalance: 70,
   },
   {
-    id: 2,
+    transactionId: 2,
     createdOn: new Date(1, 2, 2019),
     transactionType: 'credit',
     type: 'savings',
@@ -126,7 +141,7 @@ export const transactions = [
     newBalance: 203,
   },
   {
-    id: 3,
+    transactionId: 3,
     createdOn: new Date(1, 3, 2019),
     transactionType: 'debit',
     type: 'savings',

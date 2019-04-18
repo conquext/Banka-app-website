@@ -1,8 +1,8 @@
 export default class User {
   constructor({
-    id, name, email, password, dob, state, phoneNumber, country,
+    userId, name, email, password, dob, state, phoneNumber, country,
   }) {
-    this.id = id || '';
+    this.userId = userId || '';
     this.name = name;
     this.email = email;
     this.password = password;
@@ -53,7 +53,7 @@ export default class User {
   }
 
   getUserId() {
-    return this.id;
+    return this.userId;
   }
 
   getAccountNumber() {
