@@ -6,6 +6,7 @@ class Account {
     this.accountNumber = accountNumber || '';
     this.createdOn = new Date().toLocaleString();
     this.userId = userId || {};
+    this.owner = this.userId || {};
     this.type = type || 'savings';
     this.bank = bank || '';
     this.status = 'active';

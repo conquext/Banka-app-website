@@ -16,7 +16,7 @@ export default class AuthMiddleware {
     return res.status(statusCode).json({
       success: 'true',
       status: statusCode,
-      message: success,
+      data: success,
     });
   }
 
@@ -28,7 +28,8 @@ export default class AuthMiddleware {
   static authenticateUser(req, res, next) {
     const currentToken = req.headers.authorization;
     if (!currentToken) {
-      return res.status(401).json({
+      return res.status(403).json({
+        status: 403,
         success: 'false',
         error: 'Unathorized. Token not found',
       });
@@ -36,7 +37,8 @@ export default class AuthMiddleware {
 
     const decoded = jwt.decode(req.headers.authorization, { secret: config.secret });
     if (!decoded) {
-      return res.status(401).json({
+      return res.status(403).json({
+        status: 403,
         success: 'false',
         error: 'Unathorized. Token invalid. Please login',
       });

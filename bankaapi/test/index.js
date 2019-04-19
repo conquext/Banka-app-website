@@ -1,29 +1,41 @@
 import chai from 'chai';
 import chaiHttp from 'chai-http';
 import app from '../app';
-import request from 'supertest';
+//import request from 'supertest';
 
 const { expect } = chai;
 
 chai.use(chaiHttp);
 chai.should();
 
+const apiVersion = '/api/v1'
+
+const userURL = `${apiVersion}/users`;
+const authLoginURL = `${apiVersion}/auth/login`;
+const authSignupURL = `${apiVersion}/auth/signup`;
+const accountURL = `${apiVersion}/accounts`;
+const transactionURL = `${apiVersion}/transactions`;
+
 let userToken = '';
 let cashierToken = '';
 let adminToken = '';
 
-
 //var authenticatedUser = request.agent(app);
 before((done) => {
   const userCredentials = {
-    email: 'email2@email.com', 
-    password: 'password1'
+    firstName: 'Shegs',
+    lastName: 'Jolly',
+    email: 'email12@email.com', 
+    password: 'password1',
+    confirmPassword: 'password1',
+    type: 'user',
   };
   chai
   .request(app)
-    .post(`${authLoginURL}`)
+    .post(`${authSignupURL}`)
     .send(userCredentials)
     .end((err, res) => {
+      console.log(res.body);
       userToken = res.body.data.token;
       done();
     });
@@ -31,12 +43,16 @@ before((done) => {
 
 before((done) => {
   const cashierCredentials = {
-    email: 'email3@email.com', 
-    password: 'password1'
+    firstName: 'Shegs',
+    lastName: 'Jolly',
+    email: 'email13@email.com', 
+    password: 'password1',
+    confirmPassword: 'password1',
+    type: 'cashier',
   }
   chai
   .request(app)
-    .post(`${authLoginURL}`)
+    .post(`${authSignupURL}`)
     .send(cashierCredentials)
     .end((err, res) => {
       cashierToken = res.body.data.token;
@@ -47,12 +63,16 @@ before((done) => {
 //var authenticatedAdmin = request.agent(app);
 before(function(done){
   const adminCredentials = {
-    email: 'admin@email.com', 
-    password: 'password1'
+    firstName: 'Shegs',
+    lastName: 'Jolly',
+    email: 'admin12@email.com', 
+    password: 'password1',
+    confirmPassword: 'password1',
+    type: 'admin',
   }
   chai
   .request(app)
-    .post(`${authLoginURL}`)
+    .post(`${authSignupURL}`)
     .send(adminCredentials)
     .end((err, res) => {
       adminToken = res.body.data.token;
@@ -60,12 +80,6 @@ before(function(done){
     });
 });
 
-
-const userURL = '/api/v1/users';
-const authLoginURL = '/api/v1/auth/login';
-const authSignupURL = '/api/v1/auth/signup';
-const accountURL = '/api/v1/accounts';
-const transactionURL = '/api/v1/transactions';
 
 //Test default route
 describe('Test default route', () => {
@@ -101,7 +115,6 @@ describe('Test default route', () => {
       });
   });
 });
-
 // Test Auth Controller for signup
 describe('POST /api/v1/auth/signup', () => {
   it('should not register user with an empty email', (done) => {
@@ -115,7 +128,7 @@ describe('POST /api/v1/auth/signup', () => {
         confirmPassword: 'password1',
       })
       .end((err, res) => {
-        expect(res).to.have.status(422);
+        expect(res).to.have.status(400);
         // expect(res.body.success).to.be.equal('false');
         // expect(res.body.error).to.be.equal('Please enter your name');
         done();
@@ -129,7 +142,9 @@ describe('POST /api/v1/auth/signup', () => {
       .request(app)
       .post(`${authSignupURL}`)
       .send({
-        name: 'Name',
+        firstName: 'Name',
+        lastName: 'Name',
+        type: 'user',
         email: 'email1@email.com',
         password: 'password1',
         confirmPassword: 'password1',
@@ -148,35 +163,39 @@ describe('POST /api/v1/auth/signup', () => {
       .request(app)
       .post(`${authSignupURL}`)
       .send({
-        name: '',
+        firstName: '',
+        lastName: 'Name',
+        type: 'user',
         email: 'Ajala@banka.com',
         password: 'password1',
         confirmPassword: 'password1',
       })
       .end((err, res) => {
-        expect(res).to.have.status(422);
+        expect(res).to.have.status(400);
         expect(res.body.success).to.be.equal('false');
-        expect(res.body.error).to.be.equal('Name is required');
+        expect(res.body.error).to.be.equal('First name is required');
         done();
       });
   });
 });
 describe('POST /api/v1/auth/signup', () => {
-  it('should not register user with less than 3 characters', (done) => {
+  it('should not register user with less than 3 characters in first name', (done) => {
     chai
       .request(app)
       .post(`${authSignupURL}`)
       .send({
-        name: 'Sw',
+        firstName: 'Na',
+        lastName: 'Name',
+        type: 'user',
         email: 'sw@gmail.com',
         password: 'password1',
         confirmPassword: 'password1',
       })
       .end((err, res) => {
-        expect(res).to.have.status(422);
+        expect(res).to.have.status(400);
         expect(res.body.success).to.be.equal('false');
         expect(res.body.error).to.be.equal(
-          'Name should contain more than 2 characters',
+          'First name should contain more than 2 characters',
         );
         done();
       });
@@ -188,13 +207,15 @@ describe('POST /api/v1/auth/signup', () => {
       .request(app)
       .post(`${authSignupURL}`)
       .send({
-        name: 'Swall',
+        firstName: 'Name',
+        lastName: 'Name',
+        type: 'user',
         email: 'swall@gmail.com',
         password: '',
         confirmPassword: '',
       })
       .end((err, res) => {
-        expect(res).to.have.status(422);
+        expect(res).to.have.status(400);
         expect(res.body.success).to.be.equal('false');
         expect(res.body.error).to.be.equal('Password is required');
         done();
@@ -207,13 +228,15 @@ describe('POST /api/v1/auth/signup', () => {
       .request(app)
       .post(`${authSignupURL}`)
       .send({
-        name: 'Swall',
+        firstName: 'Name',
+        lastName: 'Name',
+        type: 'user',
         email: 'swall@gmail.com',
         password: 'password1',
         confirm_password: 'password2',
       })
       .end((err, res) => {
-        expect(res).to.have.status(422);
+        expect(res).to.have.status(400);
         expect(res.body.success).to.be.equal('false');
         expect(res.body.error).to.be.equal('Passwords must match');
         done();
@@ -226,13 +249,15 @@ describe('POST /api/v1/auth/signup', () => {
       .request(app)
       .post(`${authSignupURL}`)
       .send({
-        name: 'Swall',
+        firstName: 'Name',
+        lastName: 'Name',
+        type: 'user',
         email: 'swall.gmail.com',
         password: 'password1',
         confirmPassword: 'password2',
       })
       .end((err, res) => {
-        expect(res).to.have.status(422);
+        expect(res).to.have.status(400);
         expect(res.body.success).to.be.equal('false');
         expect(res.body.error).to.be.equal('Email is invalid');
         done();
@@ -245,7 +270,9 @@ describe('POST /api/v1/auth/signup', () => {
       .request(app)
       .post(`${authSignupURL}`)
       .send({
-        name: 'Swall',
+        firstName: 'Name',
+        lastName: 'Name',
+        type: 'user',
         email: 'swall@gmail.com',
         password: 'password1',
         confirmPassword: 'password1',
@@ -266,12 +293,12 @@ describe('POST /api/v1/auth/login', () => {
       .post(`${authLoginURL}`)
       .send({
         email: 'email0@email.com',
-        password: 'password1',
+        password: 'password0',
       })
       .end((err, res) => {
         expect(res).to.have.status(401);
         expect(res.body.success).to.be.equal('false');
-        expect(res.body.error).to.be.equal('Incorrect email');
+        expect(res.body.error).to.be.equal('Incorrect email or Wrong password');
         done();
       });
   });
@@ -283,12 +310,12 @@ describe('POST /api/v1/auth/login', () => {
       .post(`${authLoginURL}`)
       .send({
         email: 'email1@email.com',
-        password: 'password0',
+        password: 'password1',
       })
       .end((err, res) => {
         expect(res).to.have.status(401);
         expect(res.body.success).to.be.equal('false');
-        expect(res.body.error).to.be.equal('Wrong password');
+        expect(res.body.error).to.be.equal('Incorrect email or Wrong password');
         done();
       });
   });
@@ -300,7 +327,7 @@ describe('POST /api/v1/auth/login', () => {
       .post(`${authLoginURL}`)
       .send({
         email: 'email1@email.com',
-        password: 'password1',
+        password: 'password0',
       })
       .end((err, res) => {
         expect(res).to.have.status(200);
@@ -436,7 +463,7 @@ describe('GET /api/v1/accounts/:accountId', () => {
       });
   });
 
-// describe('GET /api/v1/accounts/2', () => {
+  // describe('GET /api/v1/accounts/2', () => {
   it('should get a specific account', (done) => {
     chai
       .request(app)
@@ -491,8 +518,7 @@ describe('DELETE /api/v1/accounts/1000000000', () => {
         done();
       });
   });
-
-// describe('DELETE /api/v1/accounts/2', () => {
+  // describe('DELETE /api/v1/accounts/2', () => {
   it('should delete account', (done) => {
     chai
       .request(app)
@@ -504,7 +530,7 @@ describe('DELETE /api/v1/accounts/1000000000', () => {
         done();
       });
   });
-// describe('DELETE /api/v1/accounts?userId=1', () => {
+  // describe('DELETE /api/v1/accounts?userId=1', () => {
   it('should not delete account with user privilege', (done) => {
     chai
       .request(app)
@@ -517,7 +543,7 @@ describe('DELETE /api/v1/accounts/1000000000', () => {
         done();
       });
   });
-// describe('DELETE /api/v1/accounts/2', () => {
+  // describe('DELETE /api/v1/accounts/2', () => {
   it('should not delete account with cashier privilege', (done) => {
     chai
       .request(app)
@@ -550,7 +576,7 @@ describe('POST /api/v1/transactions', () => {
         done();
       });
   });
-// describe('POST /api/v1/transactions', () => {
+  // describe('POST /api/v1/transactions', () => {
   it('should not autorize admin to make transactions', (done) => {
     chai
       .request(app)
@@ -568,154 +594,140 @@ describe('POST /api/v1/transactions', () => {
         done();
       });
   });
-// describe('POST /api/v1/transactions', () => {
-//   it('should perform a debit transaction', (done) => {
-//     chai
-//       .request(app)
-//       .post(`${transactionURL}`)
-//       .set('Authorization', cashierToken)
-//       .send({
-//         accountNumber: 1001,
-//         amount: 500,
-//         type: 'credit',
-//       })
-//       .end((err, res) => {
-//         expect(res).to.have.status(201);
-//         expect(res.body.success).to.be.equal('true');
-//         done();
-//       });
-//   });
-// });
-// describe('POST /api/v1/transactions', () => {
-//   it('should perform a credit transaction', (done) => {
-//     chai
-//       .request(app)
-//       .post(`${transactionURL}`)
-//       .set('Authorization', cashierToken)
-//       .send({
-//         accountNumber: 1001,
-//         amount: 5,
-//         type: 'debit',
-//       })
-//       .end((err, res) => {
-//         expect(res).to.have.status(200);
-//         expect(res.body.success).to.be.equal('true');
-//         done();
-//       });
-//   });
-// });
-// describe('GET /api/v1/transactions', () => {
-//   it('should not allow users to view all transactions', (done) => {
-//     chai
-//       .request(app)
-//       .get(`${transactionURL}`)
-//       .send({
-//         data: { type: 'user' },
-//       })
-//       .end((err, res) => {
-//         expect(res).to.have.status(403);
-//         expect(res.body.success).to.be.equal('false');
-//         expect(res.body.error).to.be.equal('Unauthorized');
-//         done();
-//       });
-//   });
-// });
-// describe('GET /api/v1/transactions/3', () => {
-//   it('should not allow users to view other users transactions', (done) => {
-//     chai
-//       .request(app)
-//       .get(`${transactionURL}/3`)
-//       .send({
-//         data: { name: 'Name2', type: 'user' },
-//       })
-//       .end((err, res) => {
-//         expect(res).to.have.status(403);
-//         expect(res.body.success).to.be.equal('false');
-//         expect(res.body.error).to.be.equal('Unauthorized');
-//         done();
-//       });
-//   });
-// });
+  // describe('POST /api/v1/transactions', () => {
+  it('should perform a debit transaction', (done) => {
+    chai
+      .request(app)
+      .post(`${transactionURL}`)
+      .set('Authorization', cashierToken)
+      .send({
+        accountNumber: 1002,
+        amount: 5,
+        type: 'debit',
+      })
+      .end((err, res) => {
+        expect(res).to.have.status(200);
+        expect(res.body.success).to.be.equal('true');
+        done();
+      });
+  });
+  //describe('POST /api/v1/transactions', () => {
+  it('should perform a credit transaction', (done) => {
+    chai
+      .request(app)
+      .post(`${transactionURL}`)
+      .set('Authorization', cashierToken)
+      .send({
+        accountNumber: 1002,
+        amount: 5,
+        type: 'credit',
+      })
+      .end((err, res) => {
+        expect(res).to.have.status(200);
+        expect(res.body.success).to.be.equal('true');
+        done();
+      });
+  });
+});
+describe('GET /api/v1/transactions', () => {
+  it('should not allow users to view all transactions', (done) => {
+    chai
+      .request(app)
+      .get(`${transactionURL}`)
+      .set('Authorization', userToken)
+      .end((err, res) => {
+        expect(res).to.have.status(403);
+        expect(res.body.success).to.be.equal('false');
+        expect(res.body.error).to.be.equal('Unauthorized');
+        done();
+      });
+  });
+  //describe('GET /api/v1/transactions/3', () => {
+  it('should not allow users to view other users transactions', (done) => {
+    chai
+      .request(app)
+      .get(`${transactionURL}/3`)
+      .set('Authorization', userToken)
+      .end((err, res) => {
+        expect(res).to.have.status(403);
+        expect(res.body.success).to.be.equal('false');
+        expect(res.body.error).to.be.equal('Unauthorized');
+        done();
+      });
+  });
 // describe('GET /api/v1/transactions/2', () => {
-//   it('should allow users to view own transactions', (done) => {
+//   it('should allow users to view own transactions', () => {
 //     chai
-//       .request(app)
-//       .get(`${transactionURL}/2`)
-//       .send({
-//         data: { name: 'Name2', type: 'user' },
-//       })
-//       .end((err, res) => {
-//         expect(res).to.have.status(201);
-//         expect(res.body.success).to.be.equal('success');
-//         expect(res.body.transactionFound).to.have.key(
-//           'accountNumber',
-//           'balance',
-//           'oldbalance',
-//         );
-//         done();
-//       });
+//     .request(app)
+//     .get(`${transactionURL}?userId=2`)
+//     .set('Authorization', userToken)
+//     .end((err, res) => {
+//       expect(res).to.have.status(200);
+//       expect(res.body.success).to.be.equal('success');
+//       // expect(res.body.transactionFound).to.have.key(
+//       //   'accountNumber',
+//       //   'balance',
+//       //   'oldbalance',
+//       // );
+//       done();
+//     });
 //   });
 // });
-// describe('GET /api/v1/transactions?email=email3@email.com', () => {
-//   it('should allow users to view own transactions', (done) => {
-//     chai
-//       .request(app)
-//       .get(`${transactionURL}?email=email3@email.com`)
-//       .send({
-//         data: { name: 'Name3', type: 'user' },
-//       })
-//       .end((err, res) => {
-//         expect(res).to.have.status(201);
-//         expect(res.body.success).to.be.equal('success');
-//         expect(res.body.transactionFound).to.have.key(
-//           'accountNumber',
-//           'balance',
-//           'oldbalance',
-//         );
-//         done();
-//       });
-//   });
-// });
-// describe('GET /api/v1/transactions?userId=3', () => {
-//   it('should allow users to view own transactions', (done) => {
-//     chai
-//       .request(app)
-//       .get(`${transactionURL}?userId=3`)
-//       .send({
-//         data: { name: 'Name3', type: 'user' },
-//       })
-//       .end((err, res) => {
-//         expect(res).to.have.status(201);
-//         expect(res.body.success).to.be.equal('success');
-//         expect(res.body.transactionFound).to.have.key(
-//           'accountNumber',
-//           'balance',
-//           'oldbalance',
-//         );
-//         done();
-//       });
-//   });
-// });
-// describe('GET /api/v1/transactions', () => {
-//   it('should  allow cashier user to view all transactions', (done) => {
-//     chai
-//       .request(app)
-//       .get(`${transactionURL}`)
-//       .send({
-//         data: { type: 'cashier' },
-//       })
-//       .end((err, res) => {
-//         expect(res).to.have.status(200);
-//         expect(res.body.success).to.be.equal('success');
-//         expect(res.body.accountFound).to.have.key(
-//           'accountNumber',
-//           'balance',
-//           'oldbalance',
-//         );
-//         done();
-//       });
-//   });
-// });
+  //describe('GET /api/v1/transactions?email=email3@email.com', () => {
+  // it('should allow users to view own transactions', (done) => {
+  //   chai
+  //     .request(app)
+  //     .get(`${transactionURL}?email=email3@email.com`)
+  //     .send({
+  //       data: { name: 'Name3', type: 'user' },
+  //     })
+  //     .end((err, res) => {
+  //       expect(res).to.have.status(201);
+  //       expect(res.body.success).to.be.equal('success');
+  //       expect(res.body.transactionFound).to.have.key(
+  //         'accountNumber',
+  //         'balance',
+  //         'oldbalance',
+  //       );
+  //       done();
+  //     });
+  // });
+  // //describe('GET /api/v1/transactions?userId=3', () => {
+  // it('should allow users to view own transactions', (done) => {
+  //   chai
+  //     .request(app)
+  //     .get(`${transactionURL}?userId=3`)
+  //     .send({
+  //       data: { name: 'Name3', type: 'user' },
+  //     })
+  //     .end((err, res) => {
+  //       expect(res).to.have.status(201);
+  //       expect(res.body.success).to.be.equal('success');
+  //       expect(res.body.transactionFound).to.have.key(
+  //         'accountNumber',
+  //         'balance',
+  //         'oldbalance',
+  //       );
+  //       done();
+  //     });
+  // });
+  //describe('GET /api/v1/transactions', () => {
+  it('should  allow cashier  to view all transactions', (done) => {
+    chai
+      .request(app)
+      .get(`${transactionURL}`)
+      .set('Authorization', cashierToken)
+      .end((err, res) => {
+        expect(res).to.have.status(200);
+        expect(res.body.success).to.be.equal('true');
+        // expect(res.body.accountFound).to.have.key(
+        //   'accountNumber',
+        //   'balance',
+        //   'oldbalance',
+        // );
+        done();
+      });
+  });
 // describe('GET /api/v1/transactions?email=name3@email.com', () => {
 //   it('should allow cashier user to view all transactions of a specific user', (done) => {
 //     chai
@@ -735,28 +747,25 @@ describe('POST /api/v1/transactions', () => {
 //         done();
 //       });
 //   });
-// });
-// describe('GET /api/v1/transactions', () => {
-//   it('should  allow admin user to view all transactions', (done) => {
-//     chai
-//       .request(app)
-//       .get(`${transactionURL}`)
-//       .send({
-//         data: { type: 'admin' },
-//       })
-//       .end((err, res) => {
-//         expect(res).to.have.status(200);
-//         expect(res.body.success).to.be.equal('success');
-//         expect(res.body.accountFound).to.have.key(
-//           'accountNumber',
-//           'balance',
-//           'oldbalance',
-//         );
-//         done();
-//       });
-//   });
-// });
-// describe('GET /api/v1/transactions?email=name3@email.com', () => {
+  //describe('GET /api/v1/transactions', () => {
+  it('should  allow admin to view all transactions', (done) => {
+    chai
+      .request(app)
+      .get(`${transactionURL}`)
+      .set('Authorization', adminToken)
+      .end((err, res) => {
+        expect(res).to.have.status(200);
+        expect(res.body.success).to.be.equal('true');
+        // expect(res.body.accountFound).to.have.key(
+        //   'accountNumber',
+        //   'balance',
+        //   'oldbalance',
+        // );
+        done();
+      });
+  });
+});
+//describe('GET /api/v1/transactions?email=name3@email.com', () => {
 //   it('should  allow admin user to view all transactions of a specific user', (done) => {
 //     chai
 //       .request(app)
@@ -776,78 +785,74 @@ describe('POST /api/v1/transactions', () => {
 //       });
 //   });
 // });
-// describe('POST /api/v1/transactions', () => {
-//   it('should not perform transaction if account does not exist', (done) => {
-//     chai
-//       .request(app)
-//       .post(`${transactionURL}`)
-//       .send({
-//         accountNumber: 1001377773888,
-//         amount: 500,
-//         type: credit,
-//         data: { type: 'cashier' },
-//       })
-//       .end((err, res) => {
-//         expect(res).to.have.status(403);
-//         expect(res.body.success).to.be.equal('false');
-//         expect(res.body.error).to.be.equal('Account not found');
-//         done();
-//       });
-//   });
-// });
-// describe('GET /api/v1/transactions/2', () => {
-//   it('should  allow admin user to view a specific transaction', (done) => {
-//     chai
-//       .request(app)
-//       .get(`${transactionURL}/2`)
-//       .send({
-//         data: { type: 'admin' },
-//       })
-//       .end((err, res) => {
-//         expect(res).to.have.status(200);
-//         expect(res.body.success).to.be.equal('success');
-//         expect(res.body).to.have.key('accountNumber', 'balance', 'oldbalance');
-//         done();
-//       });
-//   });
-// });
-// describe('GET /api/v1/transactions/1', () => {
-//   it('should  allow cashier user to view a specific transaction', (done) => {
-//     chai
-//       .request(app)
-//       .GET(`${transactionURL}/id`)
-//       .send({
-//         data: { type: 'cashier' },
-//       })
-//       .end((err, res) => {
-//         expect(res).to.have.status(200);
-//         expect(res.body.success).to.be.equal('success');
-//         expect(res.body.transactions).to.have.key(
-//           'id',
-//           'oldBalance',
-//           'newBalance',
-//           amount,
-//         );
-//         done();
-//       });
-//   });
-// });
-// describe('POST /api/v1/transactions', () => {
-//   it('should return false transaction for insufficient balance in debit transaction', (done) => {
-//     chai
-//       .request(app)
-//       .post(`${transactionURL}`)
-//       .send({
-//         accountNumber: 1001,
-//         amount: 5000000000000,
-//         type: debit,
-//         data: { type: 'cashier' },
-//       })
-//       .end((err, res) => {
-//         expect(res).to.have.status(422);
-//         expect(res.body.success).to.be.equal('false');
-//         expect(res.body.error).to.be.equal('Insufficient balance');
-//         done();
-//       });
-//   });
-// });
+describe('POST /api/v1/transactions', () => {
+  it('should not perform transaction if account does not exist', (done) => {
+    chai
+      .request(app)
+      .post(`${transactionURL}`)
+      .set('Authorization', cashierToken)
+      .send({
+        accountNumber: 1001377773888,
+        amount: 500,
+        type: 'credit',
+      })
+      .end((err, res) => {
+        expect(res).to.have.status(404);
+        expect(res.body.success).to.be.equal('false');
+        expect(res.body.error).to.be.equal('Account not found');
+        done();
+      });
+  });
+});
+describe('GET /api/v1/transactions/2', () => {
+  it('should  allow admin user to view a specific transaction', (done) => {
+    chai
+      .request(app)
+      .get(`${transactionURL}/2`)
+      .set('Authorization', adminToken)
+      .end((err, res) => {
+        expect(res).to.have.status(200);
+        expect(res.body.success).to.be.equal('true');
+        //expect(res.body).to.have.key('accountNumber', 'balance', 'oldbalance');
+        done();
+      });
+  });
+});
+describe('GET /api/v1/transactions/1', () => {
+  it('should  allow cashier user to view a specific transaction', (done) => {
+    chai
+      .request(app)
+      .get(`${transactionURL}/3`)
+      .set('Authorization', cashierToken)
+      .end((err, res) => {
+        expect(res).to.have.status(200);
+        expect(res.body.success).to.be.equal('true');
+        // expect(res.body.transactions).to.have.key(
+        //   'id',
+        //   'oldBalance',
+        //   'newBalance',
+        //   amount,
+        // );
+        done();
+      });
+  });
+});
+describe('POST /api/v1/transactions', () => {
+  it('should return fail transaction for insufficient balance in debit transaction', (done) => {
+    chai
+      .request(app)
+      .post(`${transactionURL}`)
+      .set('Authorization', cashierToken)
+      .send({
+        accountNumber: 1002,
+        amount: 5000000000000,
+        type: 'debit',
+      })
+      .end((err, res) => {
+        expect(res).to.have.status(404);
+        expect(res.body.success).to.be.equal('false');
+        expect(res.body.error).to.be.equal('Insufficient balance');
+        done();
+      });
+  });
+});

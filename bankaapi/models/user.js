@@ -1,9 +1,10 @@
 export default class User {
   constructor({
-    userId, name, email, password, dob, state, phoneNumber, country,
+    userId, firstName, lastName, email, type, password, dob, state, phoneNumber, country,
   }) {
     this.userId = userId || '';
-    this.name = name;
+    this.firstName = firstName;
+    this.lastName = lastName;
     this.email = email;
     this.password = password;
     this.dob = dob || '';
@@ -12,9 +13,10 @@ export default class User {
     this.phoneNumber = phoneNumber || '';
     this.accountNumber = '';
     this.loggedIn = false;
-    this.type = 'user';
+    this.type = type || 'user';
     this.balance = null;
     this.token = '',
+    this.password = '',
     this.createdAt = new Date();
     this.lastLoggedInAt = null;
   }
@@ -77,10 +79,23 @@ export default class User {
   }
 
   isAdmin() {
-    return this.type == 'admin';
+    return this.type === 'admin';
   }
   getToken() {
     return this.token;
+  }
+  getPassword() {
+    return this.password;
+  }
+  getUser() {
+    return {
+      token: this.token,
+      id: this.userId, 
+      firstName: this.firstName, 
+      lastName: this.lastName,
+      email: this.email,
+      isAdmin: this.isAdmin,
+    }
   }
 }
 

@@ -6,19 +6,20 @@ export default class AccountController {
   // creates an account
   static createAccount(req, res) {
     try {
-      const newId = accounts[accounts.length - 1].id + 1;
+      const newId = accounts[accounts.length - 1].accountId + 1;
       const newAccountNumber = accounts[accounts.length - 1].accountNumber + 1;
       const { type, bank } = req.body;
-            
-      const user = UserHelper.findUserById(parseInt(req.data.userId, 10));
-      if (user) {
+      
+      const userFound = UserHelper.findUserById(parseInt(req.data.userId, 10));
+      if (userFound) {
         const newAccount = new Account(
           {
-            accountId: newId, accountNumber: newAccountNumber, type: type, userId: user.userId, bank: bank
+            accountId: newId, accountNumber: newAccountNumber, type: type, userId: userFound.userId, balance: 0
           });
         accounts.push(newAccount);
 
         return res.status(201).json({
+          status: 201,
           success: 'true',
           message: 'Account is created successfully',
           data: newAccount,
@@ -26,12 +27,14 @@ export default class AccountController {
       }
       else{
         return res.status(403).json({
+          status: 403,
           success: 'false',
           error: 'Unauthorized',
         });
       }
     } catch (error) {
         res.status(500).json({
+          status: 500,
           success: 'false',
           error: 'Something went wrong. Try again.',
         });
@@ -64,6 +67,7 @@ export default class AccountController {
       }
       if (accountsFound.length === 1) {
         return res.status(200).json({
+          status: 200,
           success: 'true',
           message: 'Account retrieved successfully',
           Account: accountsFound,
@@ -71,6 +75,7 @@ export default class AccountController {
       }
       if (accountsFound.length > 1) {
         return res.status(200).json({
+          status: 200,
           success: 'true',
           message: 'Accounts retrieved successfully',
           Account: accountsFound,
@@ -78,13 +83,15 @@ export default class AccountController {
       }
       else{
         return res.status(404).json({
-        success: 'false',
-        error: 'Account not found',
-      });
+          status: 404,
+          success: 'false',
+          error: 'Account not found',
+        });
       }
       
     } catch (error) {
         return res.status(500).json({
+          status: 500,
           success: 'false',
           error: 'Something went wrong',
         });
@@ -103,6 +110,7 @@ export default class AccountController {
       });
       if (accountFound && accountFound.status === "active") {
         return res.status(200).json({
+          status: 200,
           success: 'true',
           message: 'Accounts retrieved successfully',
           Account: accountFound,
@@ -110,12 +118,14 @@ export default class AccountController {
       }
 
       return res.status(404).json({
+        status: 404,
         success: 'false',
         error: 'Account not found',
         Account: accountFound,
       });
     } catch (error) {
         return res.status(500).json({
+          status: 500,
           success: 'false',
           error: 'Something went wrong',
         });
@@ -135,6 +145,7 @@ export default class AccountController {
       });
       if (!accountFound) {
         return res.status(404).json({
+          status: 404,
           success: 'false',
           error: 'Account not found',
         });
@@ -142,17 +153,20 @@ export default class AccountController {
 
       if(accountFound.status === req.body.status){
         return res.status(400).json({
+          status: 400,
           success: 'false',
           error: `Account is already ${req.body.status}d`,
         });
       }
       accountFound.status = req.body.status || req.params.status || req.query.status;
       return res.status(200).json({
+        status: 200,
         success: 'true',
         message: `Account ${req.body.status}d successfully`,
       });
     } catch (error) {
       return res.status(500).json({
+        status: 500,
         success: 'false',
         error: 'Something went wrong',
       });
@@ -174,6 +188,7 @@ export default class AccountController {
       });
       if (!accountFound) {
         return res.status(404).json({
+          status: 404,
           success: 'false',
           error: 'Account not found',
         });
@@ -181,11 +196,13 @@ export default class AccountController {
       accountFound.deleted = "true";
       accounts.splice(accountIndex, 1);
       return res.status(200).json({
+        status: 200,
         success: 'true',
         message: 'Account deleted successfully',
       });
     } catch (error) {
       return res.status(500).json({
+        status: 500,
         success: 'false',
         error: 'Something went wrong',
       });

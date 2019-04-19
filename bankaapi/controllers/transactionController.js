@@ -1,4 +1,5 @@
 import { accounts, transactions } from '../db/db';
+import UserHelper from '../helpers/userHelper';
 
 import Transaction from '../models/transaction';
 
@@ -8,52 +9,57 @@ export default class TransactionController {
     try {
       const { accountNumber, type } = req.body;
       let { amount } = req.body;
-      const newId = transactions[transactions.length - 1].transactionId + 1;
-      const this_transaction = new Transaction(newId, accountNumber, amount, type);
+      const newTransactionId = transactions[transactions.length - 1].transactionId + 1;
+      const thisTransaction = new Transaction(newTransactionId, accountNumber, amount, type);
 
       // check if account exists
-      let accountFound = '';
+      let accountFound = null;
       accounts.map((account) => {
-        if (account.accountNumber === accountNumber) {
+        if (String(account.accountNumber) === String(accountNumber)) {
           accountFound = account;
         }
       });
       if (!accountFound) {
         return res.status(404).json({
+          status: 404,
           success: 'false',
-          message: 'Account not found',
+          error: 'Account not found',
         });
       }
       if (type === 'debit') {
         if (amount && accountFound.balance > amount) {
-          amount = (-1 * amount);
+          amount = (-1 * parseInt(amount, 10));
         } else {
-          return res.status(422).json({
+          return res.status(404).json({
+            status: 404,
             success: 'false',
             error: 'Insufficient balance',
           });
         }
       }
       if (type === 'credit') {
-        if (!amount || req.body.amount <= 0) {
+        if (!amount || parseInt(req.body.amount, 10) <= 0) {
           return res.status(404).json({
+            status: 404,
             success: 'false',
             error: 'Provide amount greater than 0',
           });
         }
       }
-      this_transaction.oldBalance = accountFound.balance;
+      thisTransaction.oldBalance = accountFound.balance;
       accountFound.balance += amount;
-      this_transaction.newBalance = accountFound.balance;
-      transactions.push(this_transaction);
+      thisTransaction.newBalance = accountFound.balance;
+      transactions.push(thisTransaction);
 
       return res.status(200).json({
+        status: 200,
         success: 'true',
-        message: `Account is ${type}'ed' with ${amount} Naira`,
-        TransactionFound: this_transaction,
+        message: `Account is ${type}ed with ${amount} Naira`,
+        TransactionFound: thisTransaction,
       });
     } catch (error) {
       res.status(500).json({
+        status: 200,
         success: 'false',
         error: 'Something went wrong. Try again.',
       });
@@ -66,43 +72,55 @@ export default class TransactionController {
       if (req.body.transactionId || req.query.transactionId || req.query.accountNumber || req.body.accountNumber) {
         const transactionId = req.query.transactionId || req.body.transactionId;
         const accountNumber  = req.query.accountNumber || req.body.accountNumber;
+        let userFound = UserHelper.findUserByAccountNumber(parseInt(accountNumber, 10)) 
+                        || UserHelper.findUserByTransactionId(parseInt(transactionId, 10));
+        
         let transactionsFound = [];
 
-        
-        if (!transactionId) {
-          if (accountNumber) {
+        if (!userFound) {
+          if (req.data.type !== 'user') {
             transactions.map((transaction) => {
-            if (String(transaction.accountNumber) === String(accountNumber)) {
-              transactionsFound.push(transaction);
-            }
+                transactionsFound.push(transaction);
+            });
+          }
+          else {
+            return res.status(403).json({
+              status: 403,
+              success: "false",
+              error: "Unathorized"
             });
           }
         }
-        if (!accountNumber) {
-            if (transactionId) {
-              transactions.map((transaction) => {
-              if (transaction.transactionId === transactionId) {
-                transactionsFound.push(transaction);
-              }
+        else { 
+          if (req.data.userId !== userFound.userId) {
+            if (req.data.type !== 'admin' || req.data.type !== 'cashier') {
+              return res.status(403).json({
+                status: 403,
+                success: "false",
+                error: "Unathorized"
               });
             }
-        }
-        if (!transactionId){
-          if(!accountNumber){
-            transactions.forEach((transaction) => {
-              transactionsFound.push(transaction);
-            });
+            else {
+              transactions.map((transaction) => {
+              if (String(transaction.accountNumber) === String(userFound.accountNumber)) {
+                transactionsFound.push(transaction);
+                }
+              });
+            }
           }
         }
+          
         if (transactionsFound.length === 1) {
-          return res.status(201).json({
+          return res.status(200).json({
+            status: 200,
             success: 'true',
             message: 'Transaction retrieved successfully',
             TransactionFound: transactionsFound,
           });
         }
         if (transactionsFound.length > 1) {
-          return res.status(201).json({
+          return res.status(200).json({
+            status: 200,
             success: 'true',
             message: 'Transactions retrieved successfully',
             TransactionFound: transactionsFound,
@@ -110,26 +128,30 @@ export default class TransactionController {
         }
 
         return res.status(404).json({
+          status: 404,
           success: 'false',
-          message: 'No transaction found',
+          error: 'No transaction found',
         });
       }
 
       if (transactions) {
-        return res.status(201).json({
+        return res.status(200).json({
+          status: 200,
           success: 'true',
           message: 'Transactions retrieved successfully',
           TransactionFound: [...transactions],
         });
       }
       return res.status(404).json({
+        status: 404,
         success: 'false',
         error: 'No transaction found',
       });
     } catch (error) {
       return res.status(500).json({
+        status: 505,
         success: 'false',
-        message: 'Something went wrong',
+        error: 'Something went wrong',
       });
     }
   }
@@ -145,7 +167,8 @@ export default class TransactionController {
         }
       });
       if (transactionFound) {
-        return res.status(201).json({
+        return res.status(200).json({
+          status: 200,
           success: 'true',
           message: 'Transaction retrieved successfully',
           TransactionFound: transactionFound,
@@ -153,14 +176,15 @@ export default class TransactionController {
       }
 
       return res.status(404).json({
+        status: 404,
         success: 'false',
-        message: 'Not found',
-        TransactionFound: transactionFound,
+        error: 'Not found',
       });
     } catch (error) {
       return res.status(500).json({
+        status: 500,
         success: 'false',
-        message: 'Something went wrong',
+        error: 'Something went wrong',
       });
     }
   }

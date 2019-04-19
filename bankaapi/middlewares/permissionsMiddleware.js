@@ -5,6 +5,7 @@ export default class PermissionsMiddleware {
   static authUser(req, res, next) {
     if (req.data.type !== 'user') {
       return res.status(403).json({
+        status: 403,
         success: 'false',
         error: 'Unauthorized',
       });
@@ -15,6 +16,7 @@ export default class PermissionsMiddleware {
   static authCashier(req, res, next) {
     if (req.data.type !== 'cashier') {
       return res.status(403).json({
+        status: 403,
         success: 'false',
         error: 'Unauthorized',
       });
@@ -25,6 +27,7 @@ export default class PermissionsMiddleware {
   static authAdmin(req, res, next) {
     if (req.data.type !== 'admin') {
       return res.status(403).json({
+        status: 403,
         success: 'false',
         error: 'Unauthorized',
       });
@@ -36,6 +39,7 @@ export default class PermissionsMiddleware {
     if (req.data.type !== 'admin') {
       if (req.data.type !== ('cashier')){
         return res.status(403).json({
+          status: 403,
           success: 'false',
           error: 'Unauthorized',
         });
@@ -45,28 +49,30 @@ export default class PermissionsMiddleware {
   }
 
   static authStaffOrItsAccountOwner(req, res, next) {
-    const { type, userId} = req.data;
+    const { type, userId } = req.data;
     let {accountNumber} = req.query;
 
     if ( type !== 'admin') {
       if (type !== ('cashier')) {
         if (req.query.accountNumber) {
-          const userFound = UserHelper.findUserByAccountNumber(accountNumber);
+          const userFound = UserHelper.findUserByAccountNumber(parseInt(accountNumber, 10));
           if(parseInt(userId, 10) !== parseInt(userFound.userId, 10)){
             return res.status(403).json({
+              status: 403,
               success: 'false',
               error: 'Unauthorized',
             });
+          }
+        }
+        if(!req.query.accountNumber){
+          return res.status(403).json({
+            status: 403,
+            success: 'false',
+            error: 'Unauthorized',
+          });
         }
       }
-      if(!req.query.accountNumber){
-        return res.status(403).json({
-          success: 'false',
-          error: 'Unauthorized',
-        });
-      }
     }
-  }
   next();
 }
 
@@ -74,6 +80,7 @@ export default class PermissionsMiddleware {
     if (req.data.type !== 'admin') {
       if (parseInt(req.data.userId) !== parseInt(req.params.userId)) {
         return res.status(403).json({
+          status: 403,
           success: 'false',
           error: 'Unauthorized',
         });
@@ -95,6 +102,7 @@ export default class PermissionsMiddleware {
         const userFound = UserHelper.findUserByAccountNumber(accountNumber);
           if(parseInt(userId, 10) !== parseInt(userFound.userId, 10)){
             return res.status(403).json({
+              status: 403,
               success: 'false',
               error: 'Unauthorized',
             });

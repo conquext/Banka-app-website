@@ -9,42 +9,46 @@ export default class UserController {
   static login(req, res) {
     try {
       const { email, password } = req.body;
-      const user = UserHelper.findUserByEmail(email);
-      if (!user) {
+      const userFound = UserHelper.findUserByEmail(email);
+      if (!userFound) {
         return res.status(401).json({
+          status: 401,
           success: 'false',
-          error: 'Incorrect email',
+          error: 'Incorrect email or Wrong password',
         });
       }
-      if (user.password !== password) {
+      if (UserHelper.comparePassword(password, userFound.password)) {
         return res.status(401).json({
+          status: 401,
           success: 'false',
-          error: 'Wrong password',
+          error: 'Incorrect email or Wrong password',
         });
       }
-      const jwtToken = jwt.sign({ user }, config.secret, { expiresIn: 86400 });
-      user.token = jwtToken;
-      user.lastLoggedInAt = new Date();
-      user.loggedIn = true;
+      const jwtToken = jwt.sign({ userFound }, config.secret, { expiresIn: 86400 });
+      userFound.token = jwtToken;
+      userFound.lastLoggedInAt = new Date();
+      userFound.loggedIn = true;
 
-      const data = {
-        userId: user.userId,
-        email: user.email,
-        type: user.type,
-        token: user.token,
-        login: user.loggedIn,
+      const loginData = {
+        token: userFound.token,
+        id: userFound.userId,
+        firstName: userFound.firstName,
+        lastName: userFound.lastName,
+        email: userFound.email,
+        type: userFound.type,
       };
 
       return res.status(200).json({
+        status: 200,
         success: 'true',
         message: 'login successful',
-        token: jwtToken,
-        data,
+        data: loginData,
       });
     } catch (error) {
       return res.status(500).json({
+        status: 500,
         success: 'false',
-        message: 'Something went wrong',
+        error: 'Something went wrong',
       });
     }
   }
@@ -53,17 +57,19 @@ export default class UserController {
   static signup(req, res) {
     try {
       const {
-        name, email, password, confirmPassword,
+        firstName, lastName, email, password, confirmPassword, type,
       } = req.body;
-      const registeredUser = users.some(user => user.email == email);
+      const registeredUser = UserHelper.findUserByEmail(email);
       if (registeredUser) {
         return res.status(409).json({
+          status: 409,
           success: 'false',
           error: 'User already exists',
         });
       }
       if (password !== confirmPassword) {
-        return res.status(422).json({
+        return res.status(400).json({
+          status: 400,
           success: 'false',
           error: 'Passwords must match',
         });
@@ -71,39 +77,34 @@ export default class UserController {
       if (!registeredUser) {
         const newUserId = users[users.length - 1].userId + 1;
         const newUser = new User({
-          userId: newUserId, name, email, password,
+          userId: newUserId, firstName, lastName, email, type,
         });
 
         const jwtToken = jwt.sign({ user: newUser }, config.secret, { expiresIn: 86400 });
         newUser.token = jwtToken;
+        newUser.password = UserHelper.hashPassword(password);
         newUser.logIn();
         users.push(newUser);
 
-        const userInDb = users.map((user) => {
-          if( user.userId === newUser.userId ){
-                  return user;
-                }
-        });
-
-        const data = {
-          userId: newUserId,
-          name: newUser.name,
+        const signupData = {
+          token: newUser.getToken(),
+          id: newUserId,
+          firstName: newUser.firstName,
+          lastName: newUser.lastName,
           email: newUser.email,
           type: newUser.type,
-          token: newUser.getToken(),
-          login: userInDb.loggedIn,
+          isAdmin: newUser.isAdmin(),
         };
 
         return res.status(201).json({
           success: 'true',
           message: 'User is registered successfully',
-          token: `Bearer ${jwtToken}`,
-          user: data,
-          login: newUser.loggedIn,
+          data: signupData,
         });
       }
     } catch (error) {
       res.status(500).json({
+        status: 500,
         success: 'false',
         error: 'Something went wrong. Try again.',
       });
@@ -114,18 +115,21 @@ export default class UserController {
   static getAllUsers(req, res) {
     try {
       if (users) {
-        return res.status(201).json({
+        return res.status(200).json({
+          status: 200,
           success: 'true',
           message: 'Users retrieved successfully',
           users,
         });
       }
       return res.status(404).json({
+        status: 404,
         success: 'false',
         error: 'No user found',
       });
     } catch (error) {
       res.status(500).json({
+        status: 500,
         success: 'false',
         error: 'Something went wrong. Try again.',
       });
@@ -137,23 +141,26 @@ export default class UserController {
     try {
       const userId = parseInt(req.params.userId, 10);
       const result = '';
-      const user = UserHelper.findUserById(userId);
-      if (user) {
+      const userFound = UserHelper.findUserById(userId);
+      if (userFound) {
         return res.status(200).json({
+          status: 200,
           success: 'true',
           message: 'User retrieved successfully ',
-          user,
+          user: userFound,
         });
       }
 
       return res.status(404).json({
+        status: 404,
         success: 'false',
-        message: 'Not found',
+        error: 'Not found',
       });
     } catch (error) {
       return res.status(500).json({
+        status: 500,
         success: 'false',
-        message: 'Something went wrong',
+        error: 'Something went wrong',
       });
     }
   }
@@ -163,25 +170,28 @@ export default class UserController {
     try {
       const userId = parseInt(req.params.userId, 10);
       const email = req.query.email || '';
-      const user = UserHelper.findUserById(id) || UserHelper.findUserByEmail(email);
-      if (!user) {
+      const userFound = UserHelper.findUserById(userId) || UserHelper.findUserByEmail(email);
+      if (!userFound) {
         return res.status(404).json({
+          status: 404,
           success: 'false',
-          message: 'User not found',
+          error: 'User not found',
         });
       }
       for (const [key, value] of Object.entries(req.body)) {
         user[key] = value;
       }
       return res.status(200).json({
+        status: 200,
         success: 'true',
         message: 'User updated successfully',
-        user,
+        data: userFound,
       });
     } catch (error) {
       return res.status(500).json({
+        status: 500,
         success: 'false',
-        message: 'Something went wrong',
+        error: 'Something went wrong',
       });
     }
   }
@@ -194,8 +204,9 @@ export default class UserController {
       const user = UserHelper.findUserById(userId) || UserHelper.findUserByEmail(email);
       if (!user) {
         return res.status(404).json({
+          status: 404,
           success: 'false',
-          message: 'User not found',
+          error: 'User not found',
         });
       }
 
@@ -205,14 +216,16 @@ export default class UserController {
         user.isAdmin = true;
       }
       return res.status(200).json({
+        status: 200,
         success: 'true',
         message: 'User promoted successfuly',
         user: user,
       });
     } catch (error) {
       return res.status(500).json({
+        status: 500,
         success: 'false',
-        message: 'Something went wrong',
+        error: 'Something went wrong',
       });
     }
   }
@@ -232,21 +245,23 @@ export default class UserController {
       });
       if (!userFound) {
         return res.status(404).json({
+          status: 404,
           success: 'false',
-          message: 'User not found',
+          error: 'User not found',
         });
       }
       users.splice(userIndex, 1);
       return res.status(200).json({
+        status: 200,
         success: 'true',
         message: 'User deleted successfuly',
         DeletedUser: userFound
       });
     } catch (error) {
-      console.log(error);
       return res.status(500).json({
+        status: 500,
         success: 'false',
-        message: 'Something went wrong',
+        error: 'Something went wrong',
       });
     }
   }
