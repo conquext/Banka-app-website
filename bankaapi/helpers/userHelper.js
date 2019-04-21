@@ -4,7 +4,7 @@ import { users, transactions } from '../db/db';
 export default class UserHelper {
   static findUser(field, value) {
     for (const user of users) {
-      if (user[field] == value) {
+      if (user[field] === value){
         return user;
       }
     }
@@ -19,28 +19,29 @@ export default class UserHelper {
     return this.findUser('email', email);
   }
 
-  static findUserByAccountNumber(accountNumber){
+  static findUserByAccountNumber(accountNumber) {
     for (const user of users) {
       if (parseInt(user.accountNumber, 10) === parseInt(accountNumber, 10)) {
-       return user;
+        return user;
       }
     }
   }
 
-  static findUserByTransactionId(transactionId){
-    let accountNumber, userFound = null;
-    transactions.map((transaction) => {
-      if (transaction.transactionId === transactionId){
-        accountNumber = transaction.accountNumber;
-      }
-    });
-    users.map((user) => {
-      if (user.accountNumber === accountNumber){
-        userFound = user;
-      }
-    });
-    return userFound;
-  }
+  // static findUserByTransactionId(transactionId) {
+  //   let accountNumber = null; 
+  //   let userFound = null;
+  //   transactions.map((transaction) => {
+  //     if (transaction.transactionId === transactionId) {
+  //       accountNumber = transaction.accountNumber;
+  //     }
+  //   });
+  //   users.map((user) => {
+  //     if ({ user } === accountNumber) {
+  //       userFound = user;
+  //     }
+  //   });
+  //   return userFound;
+  // }
 
   static hashPassword(password) {
     const salt = bcrypt.genSaltSync(15);

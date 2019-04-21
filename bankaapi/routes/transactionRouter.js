@@ -7,7 +7,9 @@ import validateMiddleware from '../middlewares/validateMiddleware';
 const router = Router();
 
 const { newTransaction, getAllTransactions, getTransaction } = transactionController;
-const { authCashier, authStaff, authStaffOrItsAccountOwner, authAdminOrItsUser } = authorizeMiddleware;
+const {
+  authCashier, authStaff, authStaffOrItsAccountOwner,
+} = authorizeMiddleware;
 const { authenticateUser } = authMiddleware;
 const { transactionCheck } = validateMiddleware;
 

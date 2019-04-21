@@ -6,8 +6,12 @@ import validateMiddleware from '../middlewares/validateMiddleware';
 
 const router = Router();
 
-const { createAccount, getAllAccounts, getAccount, updateAccount, deleteAccount } = accountController;
-const { authUser, authStaff, authAdminOrItsUser, authAdminOrItsAccountOwner, authAdmin, authStaffOrItsAccountOwner } = permissionsMiddleware;
+const {
+  createAccount, getAllAccounts, getAccount, updateAccount, deleteAccount,
+} = accountController;
+const {
+  authUser, authStaff, authAdmin, authStaffOrItsAccountOwner,
+} = permissionsMiddleware;
 const { accountCreateCheck, accountUpdateCheck } = validateMiddleware;
 const { authenticateUser } = authMiddleware;
 

@@ -2,12 +2,12 @@ class Account {
   constructor({
     accountId, type, accountNumber, userId, bank,
   }) {
-    this.accountId = accountId || '';
-    this.accountNumber = accountNumber || '';
+    this.accountId = accountId;
+    this.accountNumber = accountNumber;
     this.createdOn = new Date().toLocaleString();
-    this.userId = userId || {};
-    this.owner = this.userId || {};
-    this.type = type || 'savings';
+    this.userId = userId;
+    this.owner = this.userId;
+    this.type = type;
     this.bank = bank || '';
     this.status = 'active';
     this.balance = 0;

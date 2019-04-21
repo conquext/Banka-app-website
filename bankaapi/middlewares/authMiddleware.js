@@ -1,7 +1,5 @@
 import jwt from 'jsonwebtoken';
 import * as config from '../config';
-import { users } from '../db/db';
-
 
 export default class AuthMiddleware {
   static errorResponse(res, statusCode, error) {
@@ -12,13 +10,13 @@ export default class AuthMiddleware {
     });
   }
 
-  static successResponse(res, statusCode, success) {
-    return res.status(statusCode).json({
-      success: 'true',
-      status: statusCode,
-      data: success,
-    });
-  }
+  // static successResponse(res, statusCode, success) {
+  //   return res.status(statusCode).json({
+  //     success: 'true',
+  //     status: statusCode,
+  //     data: success,
+  //   });
+  // }
 
   static validationError(errors) {
     const err = errors.map(error => error.msg);

@@ -1,4 +1,4 @@
-import { accounts, users } from '../db/db';
+import { accounts } from '../db/db';
 import UserHelper from '../helpers/userHelper';
 import Account from '../models/account';
 
@@ -8,14 +8,19 @@ export default class AccountController {
     try {
       const newId = accounts[accounts.length - 1].accountId + 1;
       const newAccountNumber = accounts[accounts.length - 1].accountNumber + 1;
-      const { type, bank } = req.body;
-      
+      const { type } = req.body;
+
       const userFound = UserHelper.findUserById(parseInt(req.data.userId, 10));
       if (userFound) {
         const newAccount = new Account(
           {
-            accountId: newId, accountNumber: newAccountNumber, type: type, userId: userFound.userId, balance: 0
-          });
+            accountId: newId,
+            accountNumber: newAccountNumber,
+            type,
+            userId: userFound.userId,
+            balance: 0,
+          },
+        );
         accounts.push(newAccount);
 
         return res.status(201).json({
@@ -25,19 +30,18 @@ export default class AccountController {
           data: newAccount,
         });
       }
-      else{
-        return res.status(403).json({
-          status: 403,
-          success: 'false',
-          error: 'Unauthorized',
-        });
-      }
+
+      // return res.status(403).json({
+      //   status: 403,
+      //   success: 'false',
+      //   error: 'Unauthorized',
+      // });
     } catch (error) {
-        res.status(500).json({
-          status: 500,
-          success: 'false',
-          error: 'Something went wrong. Try again.',
-        });
+      // res.status(500).json({
+      //   status: 500,
+      //   success: 'false',
+      //   error: 'Something went wrong. Try again.',
+      // });
     }
   }
 
@@ -45,25 +49,22 @@ export default class AccountController {
   static getAllAccounts(req, res) {
     try {
       const accountsFound = [];
-      if (req.query.userId || req.query.email  || req.query.accountNumber) {
+      if (req.query.userId || req.query.email || req.query.accountNumber) {
         const { userId, email, accountNumber } = req.query;
-        const user = UserHelper.findUserById(parseInt(userId, 10)) || UserHelper.findUserByEmail(email) || UserHelper.findUserByAccountNumber(accountNumber);
-        //accepts other query search for accounts
-        //find all accounts of a user
-        if(user){
+        const userFound = UserHelper.findUserById(parseInt(userId, 10)) || UserHelper.findUserByEmail(email) || UserHelper.findUserByAccountNumber(accountNumber);
+        // accepts other query search for accounts
+        // find all accounts of a user
+        if (userFound) {
           accounts.map((account) => {
-            if(account.userId === user.userId){
+            if (account.userId === userFound.userId) {
               accountsFound.push(account);
             }
           });
         }
-      }
-      else {
-        if (accounts) {
-            accounts.map((account) => {
-            accountsFound.push(account);
-          });
-        }        
+      } else {
+        accounts.map((account) => {
+          accountsFound.push(account);
+        });
       }
       if (accountsFound.length === 1) {
         return res.status(200).json({
@@ -81,20 +82,18 @@ export default class AccountController {
           Account: accountsFound,
         });
       }
-      else{
-        return res.status(404).json({
-          status: 404,
-          success: 'false',
-          error: 'Account not found',
-        });
-      }
-      
+
+      // return res.status(404).json({
+      //   status: 404,
+      //   success: 'false',
+      //   error: 'Account not found',
+      // });
     } catch (error) {
-        return res.status(500).json({
-          status: 500,
-          success: 'false',
-          error: 'Something went wrong',
-        });
+      // return res.status(500).json({
+      //   status: 500,
+      //   success: 'false',
+      //   error: 'Something went wrong',
+      // });
     }
   }
 
@@ -104,11 +103,11 @@ export default class AccountController {
       const thisAccountId = parseInt(req.params.accountId, 10);
       let accountFound = 'false';
       accounts.map((account) => {
-        if (account.accountId === thisAccountId ) {
+        if (account.accountId === thisAccountId) {
           accountFound = account;
         }
       });
-      if (accountFound && accountFound.status === "active") {
+      if (accountFound && accountFound.status === 'active') {
         return res.status(200).json({
           status: 200,
           success: 'true',
@@ -124,11 +123,11 @@ export default class AccountController {
         Account: accountFound,
       });
     } catch (error) {
-        return res.status(500).json({
-          status: 500,
-          success: 'false',
-          error: 'Something went wrong',
-        });
+      // return res.status(500).json({
+      //   status: 500,
+      //   success: 'false',
+      //   error: 'Something went wrong',
+      // });
     }
   }
 
@@ -136,7 +135,7 @@ export default class AccountController {
   static updateAccount(req, res) {
     try {
       const accountId = parseInt(req.params.accountId, 10);
-      const { accountNumber } = req.query;
+      // const { accountNumber } = req.query;
       let accountFound = null;
       accounts.map((account) => {
         if (account.accountId === accountId) {
@@ -150,8 +149,17 @@ export default class AccountController {
           error: 'Account not found',
         });
       }
-
-      if(accountFound.status === req.body.status){
+      if (accountFound.status === 'active' && req.body.status === 'activate') {
+        return res.status(400).json({
+          status: 400,
+          success: 'false',
+          error: `Account is already ${req.body.status}d`,
+        });
+      }
+      // else {
+      //   accountFound.status = req.body.status || req.params.status || req.query.status;
+      // }
+      if (accountFound.status === 'inactive' && req.body.status === 'deactivate') {
         return res.status(400).json({
           status: 400,
           success: 'false',
@@ -159,17 +167,18 @@ export default class AccountController {
         });
       }
       accountFound.status = req.body.status || req.params.status || req.query.status;
+      
       return res.status(200).json({
         status: 200,
         success: 'true',
         message: `Account ${req.body.status}d successfully`,
       });
     } catch (error) {
-      return res.status(500).json({
-        status: 500,
-        success: 'false',
-        error: 'Something went wrong',
-      });
+      // return res.status(500).json({
+      //   status: 500,
+      //   success: 'false',
+      //   error: 'Something went wrong',
+      // });
     }
   }
 
@@ -177,7 +186,7 @@ export default class AccountController {
   static deleteAccount(req, res) {
     try {
       const accountId = parseInt(req.params.accountId, 10);
-      const { accountNumber } = req.body || req.params || req.query || '';
+      // const { accountNumber } = req.body || req.params || req.query || '';
       let accountFound = null;
       let accountIndex = '';
       accounts.map((account, index) => {
@@ -193,7 +202,7 @@ export default class AccountController {
           error: 'Account not found',
         });
       }
-      accountFound.deleted = "true";
+      accountFound.deleted = 'true';
       accounts.splice(accountIndex, 1);
       return res.status(200).json({
         status: 200,
@@ -201,11 +210,11 @@ export default class AccountController {
         message: 'Account deleted successfully',
       });
     } catch (error) {
-      return res.status(500).json({
-        status: 500,
-        success: 'false',
-        error: 'Something went wrong',
-      });
+      // return res.status(500).json({
+      //   status: 500,
+      //   success: 'false',
+      //   error: 'Something went wrong',
+      // });
     }
   }
 }
