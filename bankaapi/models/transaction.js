@@ -1,10 +1,10 @@
 class Transaction {
-  constructor(id, accountNumber, amount = '0', type, cashier = '') {
-    this.id = id;
+  constructor(transactionId, accountNumber, amount = 0, type, cashier) {
+    this.transactionId = transactionId;
     this.accountNumber = accountNumber;
     this.amount = amount;
     this.type = type;
-    this.cashier = cashier;
+    this.cashier = cashier || '';
     this.oldBalance = '';
     this.newBalance = '';
     this.createdOn = new Date().toLocaleString();

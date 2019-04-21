@@ -9,16 +9,16 @@ const router = Router();
 const {
   getAllUsers, getUser, updateUser, deleteUser, promoteUser,
 } = userController;
-const { authAdmin, authStaff, authAdminOrItsUser } = permissionsMiddleware;
+const { authAdmin, authStaff, authAdminOrItsUser, authStaffOrItsUser } = permissionsMiddleware;
 const { authenticateUser } = authMiddleware;
 const { validateUserUpdate } = validateMiddleware;
 
 router.use(authenticateUser);
 router.get('/', authStaff, getAllUsers);
-router.get('/:id', authAdminOrItsUser, getUser);
-router.put('/:id', validateUserUpdate, authAdminOrItsUser, updateUser);
-router.patch('/:id', authAdmin, promoteUser);
-router.delete('/:id', authAdmin, deleteUser);
+router.get('/:userId', authStaffOrItsUser, getUser);
+router.put('/:userId', validateUserUpdate, authAdminOrItsUser, updateUser);
+router.patch('/:userId', authAdmin, promoteUser);
+router.delete('/:userId', authAdmin, deleteUser);
 
 
 export default router;

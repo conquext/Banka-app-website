@@ -1,15 +1,17 @@
 class Account {
   constructor({
-    id, type, accountNumber, user, bank,
+    accountId, type, accountNumber, userId, bank,
   }) {
-    this.id = id || '';
-    this.accountNumber = accountNumber || '';
+    this.accountId = accountId;
+    this.accountNumber = accountNumber;
     this.createdOn = new Date().toLocaleString();
-    this.owner = user || {};
-    this.type = type || 'savings';
+    this.userId = userId;
+    this.owner = this.userId;
+    this.type = type;
     this.bank = bank || '';
     this.status = 'active';
     this.balance = 0;
+    this.deleted = 'false';
   }
   /*
   setStatus(status) {
@@ -23,6 +25,12 @@ class Account {
   }
   getBalance(){
     return this.balance;
+  }
+  delete(){
+    this.deleted = 'true';
+  }
+  isDeleted(){
+  return this.deleted;
   }
   credit(amount){
     this.balance+= amount;

@@ -1,7 +1,7 @@
+import jwt from 'jsonwebtoken';
 import * as config from '../config';
 import User from '../models/user';
 import UserHelper from '../helpers/userHelper';
-import jwt from 'jsonwebtoken';
 import { users } from '../db/db';
 
 export default class UserController {
@@ -9,43 +9,47 @@ export default class UserController {
   static login(req, res) {
     try {
       const { email, password } = req.body;
-      const user = UserHelper.findUserByEmail(email);
-      if (!user) {
+      const userFound = UserHelper.findUserByEmail(email);
+      if (!userFound) {
         return res.status(401).json({
+          status: 401,
           success: 'false',
-          error: 'Incorrect email',
+          error: 'Incorrect email or Wrong password',
         });
       }
-      if (user.password !== password) {
+      if (UserHelper.comparePassword(password, userFound.password)) {
         return res.status(401).json({
+          status: 401,
           success: 'false',
-          error: 'Wrong password',
+          error: 'Incorrect email or Wrong password',
         });
       }
-      const jwtToken = jwt.sign({ user }, config.secret, { expiresIn: 86400 });
-      user.token = jwtToken;
-      user.lastLoggedInAt = new Date();
-      user.loggedIn = true;
+      const jwtToken = jwt.sign({ userFound }, config.secret, { expiresIn: 86400 });
+      userFound.token = jwtToken;
+      userFound.lastLoggedInAt = new Date();
+      userFound.loggedIn = true;
 
-      const data = {
-        id: user.id,
-        email: user.email,
-        type: user.type,
-        token: user.token,
-        login: user.loggedIn,
+      const loginData = {
+        token: userFound.token,
+        id: userFound.userId,
+        firstName: userFound.firstName,
+        lastName: userFound.lastName,
+        email: userFound.email,
+        type: userFound.type,
       };
 
       return res.status(200).json({
+        status: 200,
         success: 'true',
         message: 'login successful',
-        token: jwtToken,
-        data,
+        data: loginData,
       });
     } catch (error) {
-      return res.status(500).json({
-        success: 'false',
-        message: 'Something went wrong',
-      });
+      // return res.status(500).json({
+      //   status: 500,
+      //   success: 'false',
+      //   error: 'Something went wrong',
+      // });
     }
   }
 
@@ -53,60 +57,57 @@ export default class UserController {
   static signup(req, res) {
     try {
       const {
-        name, email, password, confirmPassword,
+        firstName, lastName, email, password, confirmPassword, type,
       } = req.body;
-      const registeredUser = users.some(user => user.email == email);
+      const registeredUser = UserHelper.findUserByEmail(email);
       if (registeredUser) {
         return res.status(409).json({
+          status: 409,
           success: 'false',
           error: 'User already exists',
         });
       }
       if (password !== confirmPassword) {
-        return res.status(422).json({
+        return res.status(400).json({
+          status: 400,
           success: 'false',
           error: 'Passwords must match',
         });
       }
       if (!registeredUser) {
-        const newId = users[users.length - 1].id + 1;
+        const newUserId = users[users.length - 1].userId + 1;
         const newUser = new User({
-          id: newId, name, email, password,
+          userId: newUserId, firstName, lastName, email, type,
         });
 
         const jwtToken = jwt.sign({ user: newUser }, config.secret, { expiresIn: 86400 });
         newUser.token = jwtToken;
+        newUser.password = UserHelper.hashPassword(password);
         newUser.logIn();
         users.push(newUser);
 
-        const userInDb = users.map((user) => {
-          if( user.id === newUser.id ){
-                  return user;
-                }
-        });
-
-        const data = {
-          id: newId,
-          name: newUser.name,
+        const signupData = {
+          token: newUser.token,
+          id: newUserId,
+          firstName: newUser.firstName,
+          lastName: newUser.lastName,
           email: newUser.email,
           type: newUser.type,
-          token: newUser.getToken(),
-          login: userInDb.loggedIn,
+          isAdmin: newUser.isAdmin(),
         };
 
         return res.status(201).json({
           success: 'true',
           message: 'User is registered successfully',
-          token: `Bearer ${jwtToken}`,
-          user: data,
-          login: newUser.loggedIn,
+          data: signupData,
         });
       }
     } catch (error) {
-      res.status(500).json({
-        success: 'false',
-        error: 'Something went wrong. Try again.',
-      });
+      // res.status(500).json({
+      //   status: 500,
+      //   success: 'false',
+      //   error: 'Something went wrong. Try again.',
+      // });
     }
   }
 
@@ -114,140 +115,152 @@ export default class UserController {
   static getAllUsers(req, res) {
     try {
       if (users) {
-        return res.status(201).json({
+        return res.status(200).json({
+          status: 200,
           success: 'true',
           message: 'Users retrieved successfully',
           users,
         });
       }
-      return res.status(404).json({
-        success: 'false',
-        error: 'No user found',
-      });
+      // return res.status(404).json({
+      //   status: 404,
+      //   success: 'false',
+      //   error: 'User not found',
+      // });
     } catch (error) {
-      res.status(500).json({
-        success: 'false',
-        error: 'Something went wrong. Try again.',
-      });
+      // res.status(500).json({
+      //   status: 500,
+      //   success: 'false',
+      //   error: 'Something went wrong. Try again.',
+      // });
     }
   }
 
   // get a specific user
   static getUser(req, res) {
     try {
-      const id = parseInt(req.params.id);
-      const result = '';
-      const user = UserHelper.findUserById(id);
-      if (user) {
+      const userId = parseInt(req.params.userId, 10);
+      const userFound = UserHelper.findUserById(userId);
+      if (userFound) {
         return res.status(200).json({
+          status: 200,
           success: 'true',
-          message: 'User retrieved successfully ',
-          user,
+          message: 'User retrieved successfully',
+          user: userFound,
         });
       }
 
-      return res.status(404).json({
-        success: 'false',
-        message: 'Not found',
-      });
+      // return res.status(404).json({
+      //   status: 404,
+      //   success: 'false',
+      //   error: 'User not found',
+      // });
     } catch (error) {
-      return res.status(500).json({
-        success: 'false',
-        message: 'Something went wrong',
-      });
+      // return res.status(500).json({
+      //   status: 500,
+      //   success: 'false',
+      //   error: 'Something went wrong',
+      // });
     }
   }
 
   // update a user profile
   static updateUser(req, res) {
     try {
-      const id = parseInt(req.params.id);
-      const email = req.query.email || '';
-      const user = UserHelper.findUserById(id) || UserHelper.findUserByEmail(email);
-      if (!user) {
+      const userId = parseInt(req.params.userId, 10);
+      //const email = req.query.email || '';
+      const userFound = UserHelper.findUserById(userId);// || UserHelper.findUserByEmail(email);
+      if (!userFound) {
         return res.status(404).json({
+          status: 404,
           success: 'false',
-          message: 'User not found',
+          error: 'User not found',
         });
       }
+
       for (const [key, value] of Object.entries(req.body)) {
-        user[key] = value;
+        userFound[key] = value;
       }
       return res.status(200).json({
+        status: 200,
         success: 'true',
         message: 'User updated successfully',
-        user,
+        data: userFound.getUserData() || userFound,
       });
     } catch (error) {
-      return res.status(500).json({
-        success: 'false',
-        message: 'Something went wrong',
-      });
+      // return res.status(500).json({
+      //   status: 500,
+      //   success: 'false',
+      //   error: 'Something went wrong',
+      // });
     }
   }
 
   // promote a specific user or staff
   static promoteUser(req, res) {
     try {
-      const id = parseInt(req.params.id);
-      const email = req.query.email || '';
-      const user = UserHelper.findUserById(id) || UserHelper.findUserByEmail(email);
-      if (!user) {
+      const userId = parseInt(req.params.userId, 10);
+      //const email = req.query.email || '';
+      const userFound = UserHelper.findUserById(userId);// || UserHelper.findUserByEmail(email);
+      if (!userFound) {
         return res.status(404).json({
+          status: 404,
           success: 'false',
-          message: 'User not found',
+          error: 'User not found',
         });
       }
 
-      const type  = req.body.type || req.query.type || userFound.type || 'user';
-      user.type = type;
-      if (type && type === 'admin') {
-        user.isAdmin = true;
-      }
+      const { type } = req.body;// || req.query.type || userFound.type;
+      userFound.type = type;
+
       return res.status(200).json({
+        status: 200,
         success: 'true',
-        message: 'User promoted successfuly',
-        user: user,
+        message: 'User promoted successfully',
+        user: userFound.getUserData() || userFound,
       });
     } catch (error) {
-      return res.status(500).json({
-        success: 'false',
-        message: 'Something went wrong',
-      });
+      // return res.status(500).json({
+      //   status: 500,
+      //   success: 'false',
+      //   error: 'Something went wrong',
+      // });
     }
   }
 
   // delete a user
   static deleteUser(req, res) {
     try {
-      const id = parseInt(req.params.id);
-      const email = req.body.email || '';
+      const userId = parseInt(req.params.userId, 10);
+      //const email = req.body.email || '';
       let userFound = null;
       let userIndex = '';
       users.map((user, index) => {
-        if (user.id === id || user.email === email) {
+        if (user.userId === userId){ // || user.email === email) {
           userFound = user;
           userIndex = index;
         }
       });
       if (!userFound) {
         return res.status(404).json({
+          status: 404,
           success: 'false',
-          message: 'User not found',
+          error: 'User not found',
         });
       }
       users.splice(userIndex, 1);
       return res.status(200).json({
+        status: 200,
         success: 'true',
-        message: 'User deleted successfuly',
-        DeletedUser: userFound
+        message: 'User deleted successfully',
+        DeletedUser: userFound,
       });
     } catch (error) {
-      console.log(error);
-      return res.status(500).json({
-        success: 'false',
-        message: 'Something went wrong',
-      });
+      // return res.status(500).json({
+      //   status: 500,
+      //   success: 'false',
+      //   error: 'Something went wrong',
+      // });
     }
   }
 }
