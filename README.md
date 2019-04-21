@@ -1,7 +1,7 @@
 # conquext.github.io
 Banka is a light-weight core banking application that powers banking operations like account creation, customer deposit and withdrawals.
 
-[![Build Status](https://travis-ci.org/conquext/conquext.github.io.svg?branch=develop)](https://travis-ci.org/conquext/conquext.github.io.svg?branch=develop) [![Coverage Status](https://coveralls.io/repos/github/conquext/conquext.github.io/badge.svg?branch=develop)](https://coveralls.io/github/conquext/conquext.github.io?branch=develop)
+[![Build Status](https://travis-ci.org/conquext/conquext.github.io.svg?branch=master)](https://travis-ci.org/conquext/conquext.github.io.svg?branch=master) [![Coverage Status](https://coveralls.io/repos/github/conquext/conquext.github.io/badge.svg?branch=master)](https://coveralls.io/github/conquext/conquext.github.io?branch=master)
 
 ## Features
 #### Users
