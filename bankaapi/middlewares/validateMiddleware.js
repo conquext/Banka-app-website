@@ -1,106 +1,146 @@
-import { accounts, users } from '../db/db';
-
+import { accounts } from '../db/db';
 import authMiddleware from './authMiddleware';
 
 export default class ValidateMiddleware {
-  static validationError(errors) {
-    const errorCode = errors.map(error => error.msg);
-    return err;
-  }
+  // static validationError(errors) {
+  //   const errorCode = errors.map(error => error.msg);
+  //   return errorCode;
+  // }
 
 
   static loginCheck(req, res, next) {
     req.checkBody('email').isLength({ min: 1 }).withMessage('Email is required');
-  	req.checkBody('email').isEmail().withMessage('Email is invalid');
+    req.checkBody('email').isEmail().withMessage('Email is invalid');
     req.checkBody('password').isLength({ min: 1 }).withMessage('Password is required');
 
     const errors = req.validationErrors();
     if (errors) {
       const err = authMiddleware.validationError(errors);
-      return authMiddleware.errorResponse(res, 422, err);
+      return authMiddleware.errorResponse(res, 400, err);
     }
     next();
   }
 
   static signupCheck(req, res, next) {
-    req.checkBody('name').isLength({ min: 1 }).withMessage('Name is required');
-    req.checkBody('name').isLength({ min: 3 }).withMessage('Name should contain more than 2 characters');
-    req.checkBody('name').isAlpha().withMessage('You should enter only alphabets')
+    req.checkBody('firstName').isLength({ min: 1 }).withMessage('First name is required');
+    req.checkBody('lastName').isLength({ min: 1 }).withMessage('Last name is required');
+    req.checkBody('firstName').isLength({ min: 3 }).withMessage('First name should contain more than 2 characters');
+    req.checkBody('firstName').isAlpha().withMessage('First name should only contain alphabets')
       .exists()
-      .withMessage('Please enter your name');
+      .withMessage('Please enter your first name');
     req.checkBody('email').isLength({ min: 1 }).withMessage('Email is required');
     req.checkBody('password').isLength({ min: 1 }).withMessage('Password is required');
     req.checkBody('email').isEmail().withMessage('Email is invalid');
     // req.checkBody('password').isAlphaNumeric().withMessage('Password should be alphanumeric')
-    req.checkBody('password').isLength({ min: 6 }).withMessage('Should be atleast 6 characters')
+    req.checkBody('password').exists().withMessage('Password is required')
+      .isLength({ min: 6 })
+      .withMessage('Password should be atleast 6 characters');
+    req.checkBody('type').isIn(['user', 'cashier', 'admin']).withMessage('Choose a valid user type')
       .exists()
-      .withMessage('Password is required');
+      .withMessage('Specify user type');
 
     const errors = req.validationErrors();
     if (errors) {
       const err = authMiddleware.validationError(errors);
-      return authMiddleware.errorResponse(res, 422, err);
+      return authMiddleware.errorResponse(res, 400, err);
     }
     next();
   }
 
-  static accountCheck(req, res, next) {
-    if (!req.data.type.admin) {
-      return res.status(403).json({
-        success: 'false',
-        error: 'Unathorized',
-      });
-    }
+  static accountCreateCheck(req, res, next) {
     req.checkBody('type').isIn(['savings', 'current']).withMessage('Choose a valid account type')
       .exists()
       .withMessage('Specify account type');
-    req.checkBody('userId')
-      .exists()
-      .withMessage('specify account owner Id');
-    req.checkBody('bank')
-      .exists()
-      .withMessage('Specify a bank');
-
+    // req.checkBody('openingBalance')
+    //   .exists()
+    //   .withMessage('Specify an opening balance');
+    // if (!req.data.type === 'user') {
+    //   return res.status(403).json({
+    //     status: 403,
+    //     success: 'false',
+    //     error: 'Unathorized',
+    //   });
+    // }
     const errors = req.validationErrors();
     if (errors) {
       const err = authMiddleware.validationError(errors);
-      return authMiddleware.errorResponse(res, 422, err);
+      return authMiddleware.errorResponse(res, 400, err);
+    }
+    next();
+  }
+
+  static accountUpdateCheck(req, res, next) {
+    // if (req.data.type !== 'admin') {
+    //   return res.status(403).json({
+    //     status: 403,
+    //     success: 'false',
+    //     error: 'Unathorized',
+    //   });
+    // }
+    req.checkBody('status').isIn(['activate', 'deactivate']).withMessage('Specify correct account status update action')
+      .exists();
+    const errors = req.validationErrors();
+    if (errors) {
+      const err = authMiddleware.validationError(errors);
+      return authMiddleware.errorResponse(res, 400, err);
     }
     next();
   }
 
   static transactionCheck(req, res, next) {
-    const accNo = req.body.accountNumber;
-    let accountFound = '';
-    for (let i = 0; i < accounts.length; i++) {
-      if (accNo === accounts[i].accountNumber) {
-        accountFound = accounts[i];
-      }
-    }
+    req.checkBody('accountNumber').exists().withMessage('Account Number is required');
+    req.checkBody('accountNumber').isNumeric().withMessage('Enter a valid Account Number');
+    req.checkBody('amount').exists().withMessage('Provide amount').isDecimal()
+      .withMessage('Enter a valid amount');
+    req.checkBody('type').isIn(['credit', 'debit']).withMessage('Specify debit or credit transaction');
 
-    if (req.body.type === 'credit') {
-      if (!req.body.amount || req.body.amount <= 0) {
-        return res.status(404).json({
-          success: 'false',
-          error: 'Provide amount greater than 0',
-        });
-      }
-    } else if (req.body.type === 'debit' || (req.body.amount > accountFound.balance)) {
-      return res.status(422).json({
-        success: 'false',
-        error: 'Insufficient balance',
-      });
+    // const { accountNumber, amount, type } = req.body;
+    // let accountFound = '';
+    // accounts.map((account) => {
+    //   if (String(account.accountNumber) === String(accountNumber)) {
+    //     accountFound = account;
+    //   }
+    // });
+    // if (!accountFound) {
+    //   return res.status(404).json({
+    //     status: 404,
+    //     success: 'false',
+    //     error: 'Account not found',
+    //   });
+    // }
+    // if (type === 'debit') {
+    //   if (amount && accountFound.balance < amount) {
+    //     return res.status(400).json({
+    //       status: 400,
+    //       success: 'false',
+    //       error: 'Insufficient balance',
+    //     });
+    //   }
+    // }
+    // if (type === 'credit') {
+    //   if (!amount || req.body.amount <= 0) {
+    //     return res.status(400).json({
+    //       status: 400,
+    //       success: 'false',
+    //       error: 'Provide amount greater than 0',
+    //     });
+    //   }
+    // }
+    const errors = req.validationErrors();
+    if (errors) {
+      const err = authMiddleware.validationError(errors);
+      return authMiddleware.errorResponse(res, 400, err);
     }
     next();
   }
 
   static validateUserUpdate(req, res, next) {
-    req.checkBody('id').isLength({ max: 0 }).withMessage('Id cannot be updated');
+    req.checkBody('userId').isLength({ max: 0 }).withMessage('User Id cannot be updated');
 
     const errors = req.validationErrors();
     if (errors) {
       const err = authMiddleware.validationError(errors);
-      return authMiddleware.errorResponse(res, 422, err);
+      return authMiddleware.errorResponse(res, 400, err);
     }
     next();
   }

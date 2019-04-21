@@ -1,9 +1,10 @@
 export default class User {
   constructor({
-    id, name, email, password, dob, state, phoneNumber, country,
+    userId, firstName, lastName, email, type, password, dob, state, phoneNumber, country,
   }) {
-    this.id = id || '';
-    this.name = name;
+    this.userId = userId || '';
+    this.firstName = firstName;
+    this.lastName = lastName;
     this.email = email;
     this.password = password;
     this.dob = dob || '';
@@ -12,74 +13,104 @@ export default class User {
     this.phoneNumber = phoneNumber || '';
     this.accountNumber = '';
     this.loggedIn = false;
-    this.type = 'user';
+    this.type = type || 'user';
     this.balance = null;
+    this.token = '';
+    this.password = '';
     this.createdAt = new Date();
     this.lastLoggedInAt = null;
   }
 
-  isLoggedIn() {
-    return this.loggedIn;
-  }
+  // isLoggedIn() {
+  //   return this.loggedIn;
+  // }
 
-  getLastLoggedInAt() {
-    return this.lastLoggedInAt;
-  }
+  // getLastLoggedInAt() {
+  //   return this.lastLoggedInAt;
+  // }
 
   logIn() {
     this.lastLoggedInAt = new Date();
     this.loggedIn = true;
   }
 
-  logOut() {
-    this.loggedIn = false;
+  // logOut() {
+  //   this.loggedIn = false;
+  // }
+
+  getFirstName() {
+    return this.firstName;
   }
 
-  getName() {
-    return this.name;
+  getLastName() {
+    return this.lastName;
   }
 
-  setName(name) {
-    this.name = name;
-  }
+  // getName() {
+  //   return `${getLastName()} ${getFirstName()}`;
+  // }
+
+  // setName(name) {
+  //   this.name = name;
+  // }
 
   getEmail() {
     return this.email;
   }
 
-  setEmail(email) {
-    this.email = email;
-  }
+  // setEmail(email) {
+  //   this.email = email;
+  // }
 
   getUserId() {
-    return this.id;
+    return this.userId;
   }
 
-  getAccountNumber() {
-    return this.accountNumber;
-  }
+  // getAccountNumber() {
+  //   return this.accountNumber;
+  // }
 
-  getType() {
-    return this.type;
-  }
+  // getType() {
+  //   return this.type;
+  // }
 
-  getDob() {
-    return this.dob;
-  }
+  // getDob() {
+  //   return this.dob;
+  // }
 
-  setDob(dob) {
-    this.dob = dob;
-  }
+  // setDob(dob) {
+  //   this.dob = dob;
+  // }
 
-  setUpdatedAt() {
-    this.updatedAt = new Date();
-  }
+  // setUpdatedAt() {
+  //   this.updatedAt = new Date();
+  // }
 
   isAdmin() {
-    return this.type == 'admin';
+    return this.type === 'admin';
+  }
+
+  getToken() {
+    return this.token;
+  }
+
+  // getPassword() {
+  //   return this.password;
+  // }
+
+  getUserData() {
+    return {
+      token: this.getToken(),
+      id: this.getUserId(),
+      firstName: this.getFirstName(),
+      lastName: this.getLastName(),
+      email: this.getEmail(),
+      isAdmin: this.isAdmin(),
+    };
   }
 }
 
+/*
 class Cashier extends User {
   constructor(name) {
     super(name);
@@ -113,6 +144,7 @@ class Admin extends Cashier {
     return true;
   }
 }
+*/
 
 /*
 const user = [

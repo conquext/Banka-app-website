@@ -2,23 +2,12 @@ sudo: false
 language: node_js
 node_js: 
   - "node"
-script:
-  - cd bankaapi
-  - npm install
-  - npm run lint
-  - npm test
-  - npm run test-coveralls
-  - npm run coveralls
 cache:
   directories:
     - "node_modules"
 install:
-  - npm install
+  - npm ci
 after_success:
-    - npm install codeclimate-test-reporter
-    - codeclimate-test-reporter < coverage/lcov.info
-    - npm run coveralls
-after_script:
-  - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT 
+  - npm run coverage
 notifications:
   email: false
