@@ -67,3 +67,4 @@ To get the application running follow this steps:
 | GET      | `/api/v1/transactions` | Return all transactions |
 | GET      | `/api/v1/transactions/:id` | Return a specific transaction |
 
+Courtesy of Bootcamp Cycle 43
